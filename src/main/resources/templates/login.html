@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인 - Caffong</title>
+    <style>
+        /* 전체 페이지 스타일 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 네비게이션 바 스타일 */
+        .navbar {
+            background-color: #8B4513; /* 갈색 */
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            height: 50px;
+        }
+
+        .navbar img {
+            height: 30px;
+            margin-right: 10px;
+        }
+
+        .navbar .brand {
+            color: #fff;
+            font-size: 1.5em;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* 컨테이너 스타일 */
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 제목 스타일 */
+        .container h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #8B4513;
+        }
+
+        /* 폼 레이블 스타일 */
+        .container label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        /* 입력 필드 스타일 */
+        .container input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* 로그인 버튼 스타일 */
+        .container button.login-button {
+            width: 100%;
+            padding: 10px;
+            background-color: #8B4513;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        .container button.login-button:hover {
+            background-color: #a0522d;
+        }
+
+        /* 링크 버튼 스타일 */
+        .links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .links a {
+            color: #8B4513;
+            text-decoration: none;
+            font-size: 0.9em;
+            border-bottom: 1px solid transparent;
+        }
+
+        .links a:hover {
+            border-bottom: 1px solid #8B4513;
+        }
+
+        /* 소셜 로그인 버튼 컨테이너 */
+        .social-login {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .social-login h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        /* 소셜 로그인 버튼 스타일 */
+        .social-buttons {
+            display: flex;
+            flex-direction: column; /* 세로로 배치 */
+            gap: 10px; /* 버튼 간 간격 */
+        }
+
+        .social-buttons button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            color: #000; /* 텍스트 색상 검은색으로 변경 */
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            font-size: 1em;
+        }
+
+        .social-buttons button:hover {
+            background-color: #f0f0f0;
+        }
+
+        .social-buttons img {
+            height: 20px;
+            margin-right: 8px;
+        }
+
+        /* 에러 메시지 스타일 */
+        .error-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px 20px;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            display: none;
+            z-index: 1000;
+        }
+
+        /* 네비게이션 바 아래 여백 */
+        .navbar + .container {
+            margin-top: 20px;
+        }
+    </style>
+    <script>
+        // 에러 메시지 팝업 표시 함수
+        function showError(message) {
+            const popup = document.getElementById('error-popup');
+            popup.textContent = message;
+            popup.style.display = 'block';
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 5000); // 5초 후에 팝업 숨기기
+        }
+    </script>
+</head>
+<body>
+<!-- 에러 메시지 팝업 -->
+<div id="error-popup" class="error-popup" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+<!-- 네비게이션 바 -->
+<div class="navbar">
+    <!-- 이미지 경로 변경: cup.png -> cafe.png -->
+    <img src="/images/cafe.png" alt="Cafe Icon">
+    <a href="/" class="brand">Caffong</a>
+</div>
+
+<!-- 로그인 폼 컨테이너 -->
+<div class="container">
+    <h1>로그인</h1>
+    <form th:action="@{/login}" method="post" th:object="${loginDto}">
+        <!-- 아이디 -->
+        <label for="username">아이디</label>
+        <input type="text" id="username" th:field="*{username}" placeholder="아이디를 입력하세요" required>
+
+        <!-- 비밀번호 -->
+        <label for="password">비밀번호</label>
+        <input type="password" id="password" th:field="*{password}" placeholder="비밀번호를 입력하세요" required>
+
+        <!-- 로그인 버튼 -->
+        <button type="submit" class="login-button">로그인</button>
+    </form>
+
+    <!-- 링크 버튼 -->
+    <div class="links">
+        <a href="#" onclick="alert('아이디 찾기 기능은 아직 구현되지 않았습니다.')">아이디 찾기</a>
+        <a href="#" onclick="alert('비밀번호 찾기 기능은 아직 구현되지 않았습니다.')">비밀번호 찾기</a>
+        <a href="/register">회원가입</a>
+    </div>
+
+    <!-- 소셜 로그인 버튼 -->
+    <div class="social-login">
+        <h3>소셜 로그인</h3>
+        <div class="social-buttons">
+            <button type="button">
+                <img src="/images/google.png" alt="Google">
+                Google 로그인
+            </button>
+            <button type="button">
+                <img src="/images/kakao.png" alt="Kakao">
+                Kakao 로그인
+            </button>
+            <button type="button">
+                <img src="/images/naver.png" alt="Naver">
+                Naver 로그인
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* Thymeleaf를 사용하여 서버에서 에러 메시지를 전달받을 경우 팝업을 표시 */
+    /* 이 스크립트는 서버에서 errorMessage가 있을 때만 실행됩니다 */
+    /* `th:if` 조건을 확인하여 팝업을 표시 */
+    /* 예: <div id="error-popup" ... th:if="${errorMessage}" ...></div> */
+
+    /* JavaScript를 사용하여 페이지 로드 시 에러 메시지 팝업 표시 */
+    window.onload = function() {
+        /* 서버에서 errorMessage가 전달되었는지 확인 */
+        /* Thymeleaf는 errorMessage가 있을 때만 div가 렌더링됨 */
+        var popup = document.getElementById('error-popup');
+        if (popup && popup.textContent.trim() !== "") {
+            showError(popup.textContent.trim());
+        }
+    }
+</script>
+</body>
+</html>

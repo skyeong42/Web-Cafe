@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입 - Caffong</title>
+    <style>
+        /* 전체 페이지 스타일 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 네비게이션 바 스타일 */
+        .navbar {
+            background-color: #8B4513; /* 갈색 */
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            height: 50px;
+        }
+
+        .navbar img {
+            height: 30px;
+            margin-right: 10px;
+        }
+
+        .navbar .brand {
+            color: #fff;
+            font-size: 1.5em;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* 컨테이너 스타일 */
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 제목 스타일 */
+        .container h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #8B4513;
+        }
+
+        /* 폼 레이블 스타일 */
+        .container label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        /* 입력 필드 스타일 */
+        .container input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* 성별 선택 버튼 스타일 */
+        .gender-selection {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .gender-selection label {
+            flex: 1;
+            margin-right: 10px;
+            text-align: center;
+            cursor: pointer;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .gender-selection label:last-child {
+            margin-right: 0;
+        }
+
+        .gender-selection input[type="radio"] {
+            display: none;
+        }
+
+        .gender-selection input[type="radio"]:checked + label {
+            background-color: #8B4513;
+            color: #fff;
+            border-color: #8B4513;
+        }
+
+        /* 버튼 스타일 */
+        .container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #8B4513;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        .container button:hover {
+            background-color: #a0522d;
+        }
+
+        /* 에러 메시지 스타일 */
+        .error {
+            color: #d9534f;
+            margin-bottom: 15px;
+        }
+
+        /* 네비게이션 바 아래 여백 */
+        .navbar + .container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<!-- 네비게이션 바 -->
+<div class="navbar">
+    <img src="/images/cafe.png" alt="Cafe Icon">
+    <a href="/" class="brand">Caffong</a>
+</div>
+
+<!-- 회원가입 폼 컨테이너 -->
+<div class="container">
+    <h1>회원가입</h1>
+    <form th:action="@{/register}" method="post" th:object="${userDto}">
+        <!-- 닉네임 -->
+        <label for="nickname">닉네임</label>
+        <input type="text" id="nickname" th:field="*{nickname}" placeholder="닉네임을 입력하세요" required>
+
+        <!-- 아이디 -->
+        <label for="username">아이디</label>
+        <input type="text" id="username" th:field="*{username}" placeholder="아이디를 입력하세요" required>
+        <div th:if="${#fields.hasErrors('username')}" class="error" th:errors="*{username}"></div>
+
+        <!-- 비밀번호 -->
+        <label for="password">비밀번호</label>
+        <input type="password" id="password" th:field="*{password}" placeholder="비밀번호를 입력하세요" required>
+
+        <!-- 비밀번호 확인 -->
+        <label for="confirmPassword">비밀번호 확인</label>
+        <input type="password" id="confirmPassword" th:field="*{confirmPassword}" placeholder="비밀번호를 다시 입력하세요" required>
+
+        <!-- 이메일 -->
+        <label for="email">이메일</label>
+        <input type="email" id="email" th:field="*{email}" placeholder="이메일을 입력하세요" required>
+
+        <!-- 생년월일 -->
+        <label for="birthDate">생년월일</label>
+        <input type="date" id="birthDate" th:field="*{birthDate}" required>
+
+        <!-- 성별 선택 -->
+        <label>성별</label>
+        <div class="gender-selection">
+            <input type="radio" id="male" name="gender" value="MALE" th:field="*{gender}">
+            <label for="male">남성</label>
+
+            <input type="radio" id="female" name="gender" value="FEMALE" th:field="*{gender}">
+            <label for="female">여성</label>
+        </div>
+
+        <!-- 제출 버튼 -->
+        <button type="submit">가입하기</button>
+    </form>
+
+    <!-- 에러 메시지 -->
+    <div th:if="${errorMessage}" class="error" th:text="${errorMessage}"></div>
+</div>
+</body>
+</html>
