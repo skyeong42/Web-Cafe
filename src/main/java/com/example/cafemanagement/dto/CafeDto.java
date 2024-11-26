@@ -70,13 +70,13 @@ public class CafeDto {
     @Override
     public String toString() {
         return "CafeDto{" +
-            "cafeId=" + cafeId +
-            ", cafeName='" + cafeName + '\'' +
-            ", location='" + location + '\'' +
-            ", rating=" + rating +
-            ", description='" + description + '\'' +
-            ", category='" + category + '\'' +
-            ", menus=" + menus +
-            '}';
+                "cafeId=" + cafeId +
+                ", cafeName='" + cafeName + '\'' +
+                ", location='" + location + '\'' +
+                ", rating=" + rating +
+                ", description='" + description + '\'' +
+                ", category='" + category + '\'' +
+                ", menus=" + menus +
+                '}';
     }
 }

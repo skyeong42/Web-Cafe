@@ -12,6 +12,7 @@ import java.util.List;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -30,29 +31,29 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String authorizationHeader = request.getHeader("Authorization");
-
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            String token = authorizationHeader.substring(7);
-            try {
-                // Check if the token is blacklisted
-                if (tokenBlacklist.isBlacklisted(token)) {
-                    filterChain.doFilter(request, response);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("Authorization".equals(cookie.getName())) {
+                    String token = cookie.getValue();
+                    try {
+                        String username = jwtUtil.validateToken(token);
+                        if (username != null) {
+                            List<GrantedAuthority> authorities =
+                                    AuthorityUtils.commaSeparatedStringToAuthorityList("USER");
+                            var auth = new UsernamePasswordAuthenticationToken(username, token, authorities);
+                            SecurityContextHolder.getContext().setAuthentication(auth);
+                        }
+                    } catch (Exception e) {
+                        // 유효하지 않은 토큰 처리
+                    }
                 }
-
-                String username = jwtUtil.validateToken(token);
-
-                if (username != null) {
-                    List<GrantedAuthority> authorities = AuthorityUtils.commaSeparatedStringToAuthorityList("USER");
-                    var auth = new UsernamePasswordAuthenticationToken(username, token, authorities);
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                }
-            } catch (Exception e) {
-                filterChain.doFilter(request, response);
             }
         }
 
         filterChain.doFilter(request, response);
     }
+
 }

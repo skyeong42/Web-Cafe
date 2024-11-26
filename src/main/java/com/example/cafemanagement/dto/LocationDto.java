@@ -52,9 +52,9 @@ public class LocationDto {
     @Override
     public String toString() {
         return "LocationDto{" +
-            "latitude=" + latitude +
-            ", longitude=" + longitude +
-            ", address='" + address + '\'' +
-            '}';
+                "latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", address='" + address + '\'' +
+                '}';
     }
 }

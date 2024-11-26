@@ -73,10 +73,10 @@ public class Attachment {
     @Override
     public String toString() {
         return "Attachment{" +
-            "attachmentId=" + attachmentId +
-            ", fileName='" + fileName + '\'' +
-            ", fileUrl='" + fileUrl + '\'' +
-            ", fileType='" + fileType + '\'' +
-            '}';
+                "attachmentId=" + attachmentId +
+                ", fileName='" + fileName + '\'' +
+                ", fileUrl='" + fileUrl + '\'' +
+                ", fileType='" + fileType + '\'' +
+                '}';
     }
 }

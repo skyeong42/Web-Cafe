@@ -274,6 +274,15 @@
             color: #666;
         }
 
+        #cafe-details {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            margin-top: 20px;
+            display: none;
+        }
+
         /* 카페 정보 표시 영역 스타일 */
         #cafe-info {
             padding: 10px;
@@ -309,6 +318,86 @@
             }
         }
     </style>
+
+    <style>
+        /* 리뷰 리스트 스타일 */
+        .review-list {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* 리뷰 아이템 스타일 */
+        .review-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .review-header {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .review-username {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        /* 별점 스타일 */
+        .review-rating {
+            font-size: 1.2em;
+            color: #ffc107;
+            margin-bottom: 10px;
+        }
+
+        /* 리뷰 내용 스타일 */
+        .review-content {
+            font-size: 1em;
+            color: #555;
+            line-height: 1.4;
+        }
+    </style>
+
+    <style>
+        /* 메뉴 리스트 스타일 */
+        .menu-list {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* 메뉴 아이템 스타일 */
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .menu-price {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+
+
 </head>
 <body>
 <!-- 네비게이션 바 -->
@@ -344,8 +433,20 @@
         </a>
     </div>
     <div class="navbar-right">
-        <a href="/logout">로그아웃</a>
+        <!-- 로그인된 경우 -->
+        <div sec:authorize="isAuthenticated()">
+            <span>안녕하세요, <span sec:authentication="name"></span>님!</span>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-outline-light ms-3">로그아웃</button>
+            </form>
+        </div>
+        <!-- 로그인되지 않은 경우 -->
+        <div sec:authorize="isAnonymous()">
+            <a href="/login" class="btn btn-outline-light">로그인</a>
+            <a href="/register" class="btn btn-outline-light ms-2">회원가입</a>
+        </div>
     </div>
+
 </div>
 
 <!-- 메인 컨테이너 -->
@@ -367,20 +468,43 @@
                 </div>
 
                 <!-- 서브 네비게이션 바 -->
+                <!-- 서브 네비게이션 바 -->
                 <div class="sub-navbar">
-                    <a href="/info">정보</a>
-                    <a href="/menu">메뉴</a>
-                    <a href="/reviews">리뷰</a>
-                    <a href="/photos">사진</a>
-                    <a href="/reservations">예약</a>
+                    <a href="#" id="info-link">정보</a>
+                    <a href="#" id="menu-link">메뉴</a>
+                    <a href="#" id="review-link">리뷰</a> <!-- href 제거 및 id 추가 -->
+                    <a href="#" id="photos-link">사진</a>
+                    <a href="#" id="reservations-link">예약</a>
                 </div>
 
-                <!-- 카페 정보 표시 영역 추가 -->
-                <div id="cafe-info">
-                    <h5 id="cafe-name">카페 이름</h5>
-                    <p><strong>주소:</strong> <span id="cafe-address"></span></p>
-                    <p><strong>설명:</strong> <span id="cafe-description"></span></p>
+
+                <div id="cafe-details">
+                    <!-- 내용이 JavaScript로 동적으로 채워집니다 -->
                 </div>
+
+                <div id="review-section">
+                    <button id="write-review-button" class="btn btn-primary" style="display:none;">리뷰 작성</button>
+                    <div id="review-form" style="display:none; margin-top: 20px;">
+                        <h5>리뷰 작성</h5>
+                        <form id="review-submit-form">
+                            <div class="mb-3">
+                                <label for="review-title" class="form-label">제목</label>
+                                <input type="text" id="review-title" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="review-content" class="form-label">내용</label>
+                                <textarea id="review-content" class="form-control" rows="3" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="review-rating" class="form-label">평점 (1-5)</label>
+                                <input type="number" id="review-rating" class="form-control" min="1" max="5" required>
+                            </div>
+                            <button type="submit" class="btn btn-success">작성 완료</button>
+                        </form>
+                    </div>
+                </div>
+
+
             </div>
 
             <!-- 오른쪽 섹션: 카페 검색 화면 -->
@@ -392,9 +516,11 @@
                         <h5>전체 카페 목록</h5>
                         <div th:each="cafe : ${cafes}"
                              class="cafe-item"
+                             data-id="${cafe.cafeId}"
                              data-name="${cafe.cafeName}"
                              data-address="${cafe.location.address}"
-                             data-description="${cafe.description}">
+                             data-description="${cafe.description}"
+                             data-menus="${cafe.menus}">
                             <img th:src="${cafe.imageUrl != null} ? ${cafe.imageUrl} : '@{/images/default_cafe.png}'" alt="카페 이미지">
                             <div class="info">
                                 <strong th:text="${cafe.cafeName}">카페 이름</strong>
@@ -417,6 +543,7 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
     var cafes = /*[[${cafes}]]*/ '[]'; // 서버에서 전달된 카페 데이터 (JSON 형식으로 전달됨)
+    var cafeDetails = document.getElementById('cafe-details');
 
     // 카카오 맵 초기화
     var mapContainer = document.getElementById('map');
@@ -427,15 +554,131 @@
 
     var map = new kakao.maps.Map(mapContainer, mapOption);
 
+    var selectedCafe = null; // 현재 선택된 카페
+
     // 카페 정보 표시 함수
     function showCafeInfo(name, address, description) {
-        console.log({name, address, description})
-        document.getElementById('cafe-name').textContent = name;
-        document.getElementById('cafe-address').textContent = address;
-        document.getElementById('cafe-description').textContent = description;
-        document.getElementById('cafe-info').style.display = 'block';
+        cafeDetails.innerHTML = `
+        <h5>${name}</h5>
+        <p><strong>주소:</strong> ${address}</p>
+        <p><strong>설명:</strong> ${description}</p>
+    `;
+        cafeDetails.style.display = 'block';
     }
 
+
+    function showCafeMenus() {
+        fetch('/cafes/' + selectedCafe.cafeId + '/menus')
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                showMenus(data)
+            })
+            .catch(error => {
+                console.error('Error fetching reviews:', error);
+                alert('메뉴를 가져오는 중 오류가 발생했습니다.');
+            });
+    }
+
+    document.getElementById('review-link').addEventListener('click', function (event) {
+        event.preventDefault();
+
+        if (selectedCafe) {
+            fetch('/cafes/' + selectedCafe.cafeId + '/reviews')
+                .then(response => response.json())
+                .then(data => {
+                    showCafeReviews(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching reviews:', error);
+                    alert('리뷰를 가져오는 중 오류가 발생했습니다.');
+                });
+            // 리뷰 작성 버튼 표시
+            document.getElementById('write-review-button').style.display = 'block';
+
+            // 리뷰 작성 폼은 초기에는 숨김
+            document.getElementById('review-form').style.display = 'none';
+        } else {
+            alert("먼저 카페를 선택해주세요.");
+        }
+    });
+
+    // 다른 탭 클릭 시 리뷰 작성 버튼 숨기기
+    ['info-link', 'menu-link', 'photos-link', 'reservations-link'].forEach(function (id) {
+        document.getElementById(id).addEventListener('click', function (event) {
+            event.preventDefault();
+
+            // 리뷰 작성 버튼 숨기기
+            document.getElementById('write-review-button').style.display = 'none';
+
+            // 리뷰 작성 폼도 숨기기
+            document.getElementById('review-form').style.display = 'none';
+        });
+    });
+
+
+    document.getElementById('write-review-button').addEventListener('click', function() {
+        const reviewForm = document.getElementById('review-form');
+        // 폼 표시/숨기기 전환
+        reviewForm.style.display = reviewForm.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // 리뷰 작성 폼 제출 이벤트
+    document.getElementById('review-submit-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        // 리뷰 데이터 수집
+        const title = document.getElementById('review-title').value;
+        const content = document.getElementById('review-content').value;
+        const rating = parseInt(document.getElementById('review-rating').value, 10);
+
+        if (!selectedCafe || !selectedCafe.cafeId) {
+            alert('카페를 먼저 선택해주세요.');
+            return;
+        }
+
+        const reviewData = {
+            title: title,
+            content: content,
+            rating: rating,
+            cafeId: selectedCafe.cafeId,
+        };
+
+        // API 요청
+        fetch('/api/reviews', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(reviewData),
+        })
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();
+                } else if (response.status === 401) {
+                    throw new Error('로그인이 필요합니다.');
+                } else {
+                    throw new Error('리뷰 작성에 실패했습니다.');
+                }
+            })
+            .then((data) => {
+                alert('리뷰가 성공적으로 작성되었습니다.');
+
+                // 작성한 리뷰를 바로 추가
+                if (selectedCafe.reviews) {
+                    selectedCafe.reviews.push(data);
+                }
+                showCafeReviews(selectedCafe.reviews);
+
+                // 폼 초기화 및 숨기기
+                document.getElementById('review-submit-form').reset();
+                document.getElementById('review-form').style.display = 'none'; // 폼 숨기기
+                document.getElementById('write-review-button').style.display = 'none'; // 리뷰 작성 버튼 숨기기
+            })
+            .catch((error) => {
+                alert(error.message);
+            });
+    });
     // DOMContentLoaded 이벤트를 사용하여 DOM이 완전히 로드된 후에 실행
     document.addEventListener('DOMContentLoaded', function() {
         var cafeItems = document.querySelectorAll('.cafe-item');
@@ -444,10 +687,19 @@
         cafeItems.forEach(function(item, index) {
             item.addEventListener('click', function() {
                 var cafe = cafes[index];
-
+                var cafeId = cafe.cafeId;
                 var name = cafe.cafeName;
                 var address = cafe.location.address;
                 var description = cafe.description;
+                var menus = cafe.menus;
+
+                selectedCafe = {
+                    cafeId: cafeId,
+                    name: name,
+                    address: address,
+                    description: description,
+                    menus: menus
+                };
                 console.log(name, address, description);
                 showCafeInfo(name, address, description);
 
@@ -458,6 +710,24 @@
                 map.setCenter(moveLatLon);
                 map.setLevel(5); // 필요에 따라 레벨 조정
             });
+        });
+
+        document.getElementById('info-link').addEventListener('click', function(event) {
+            event.preventDefault();
+            if (selectedCafe) {
+                showCafeInfo(selectedCafe.name, selectedCafe.address, selectedCafe.description);
+            } else {
+                alert("먼저 카페를 선택해주세요.");
+            }
+        });
+
+        document.getElementById('menu-link').addEventListener('click', function(event) {
+            event.preventDefault();
+            if (selectedCafe) {
+                showCafeMenus();
+            } else {
+                alert("먼저 카페를 선택해주세요.");
+            }
         });
 
         // 마커 추가 및 클릭 이벤트 등록
@@ -495,7 +765,15 @@
                 var name = cafe.cafeName;
                 var address = cafe.location.address;
                 var description = cafe.description;
-                console.log(name, address, description);
+                var menus = cafe.menus;
+
+                selectedCafe = {
+                    name: name,
+                    address: address,
+                    description: description,
+                    menus: menus,
+                    cafeId: cafe.cafeId, // 추가
+                };
                 showCafeInfo(name, address, description);
 
                 // 해당 카페 리스트 아이템으로 스크롤 및 강조
@@ -521,6 +799,89 @@
             alert("검색어를 입력해주세요.");
         }
     });
+
+    function showCafeReviews(reviews) {
+        if (!reviews || reviews.length === 0) {
+            cafeDetails.innerHTML = `<p>리뷰가 없습니다.</p>`;
+            return;
+        }
+
+        var reviewList = `
+        <div class="review-list">
+    `;
+        reviews.forEach(function(review) {
+            // 별점 표시용 HTML 생성
+            const stars = Array(review.rating)
+                    .fill('★')
+                    .join('') +
+                Array(5 - review.rating)
+                    .fill('☆')
+                    .join('');
+
+            reviewList += `
+            <div class="review-item">
+                <div class="review-header">
+                    <strong class="review-username">${review.userName}</strong>
+                </div>
+                <div class="review-rating">${stars}</div>
+                <div class="review-content">${review.content}</div>
+            </div>
+        `;
+        });
+        reviewList += `</div>`;
+
+        cafeDetails.innerHTML = reviewList;
+        cafeDetails.style.display = 'block';
+    }
+
+    function showMenus(menus) {
+        if (!menus || menus.length === 0) {
+            cafeDetails.innerHTML = `<p>메뉴가 없습니다.</p>`;
+            return;
+        }
+
+        let menuList = `
+        <h5>메뉴 목록</h5>
+        <div class="menu-list">
+    `;
+        menus.forEach(function(menu) {
+            menuList += `
+            <div class="menu-item">
+                <div class="menu-name">${menu.name}</div>
+                <div class="menu-price">${menu.price.toLocaleString()}₩</div>
+            </div>
+        `;
+        });
+        menuList += `</div>`;
+
+        cafeDetails.innerHTML = menuList;
+        cafeDetails.style.display = 'block';
+    }
+
+
+
+    cafeItems.forEach(function(item, index) {
+        item.addEventListener('click', function() {
+            var cafe = cafes[index];
+            var name = cafe.cafeName;
+            var address = cafe.location.address;
+            var description = cafe.description;
+            var menus = cafe.menus;
+            var reviews = cafe.reviews; // 리뷰 데이터 포함
+
+            selectedCafe = {
+                cafeId: cafe.cafeId, // 필요한 경우 추가
+                name: name,
+                address: address,
+                description: description,
+                menus: menus,
+                reviews: reviews // 리뷰 추가
+            };
+            showCafeInfo(name, address, description);
+            // ... 나머지 코드
+        });
+    });
+
     /*]]>*/
 </script>
 </body>

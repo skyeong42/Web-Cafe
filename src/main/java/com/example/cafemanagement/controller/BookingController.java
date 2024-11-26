@@ -26,8 +26,8 @@ public class BookingController {
     @PostMapping
     @Operation(summary = "예약 생성", description = "새로운 예약을 생성합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "예약 생성 성공"),
-        @ApiResponse(responseCode = "400", description = "유효하지 않은 요청 데이터")
+            @ApiResponse(responseCode = "200", description = "예약 생성 성공"),
+            @ApiResponse(responseCode = "400", description = "유효하지 않은 요청 데이터")
     })
     public ResponseEntity<String> createBooking(@RequestBody BookingSaveRequestDto dto) {
         Long bookingId = bookingService.createBooking(dto);

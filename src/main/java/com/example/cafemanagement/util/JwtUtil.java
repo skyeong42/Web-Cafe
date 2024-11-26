@@ -17,29 +17,29 @@ public class JwtUtil {
 
     public String generateToken(String username) {
         return Jwts.builder()
-                   .setSubject(username)
-                   .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                   .signWith(SECRET_KEY)
-                   .compact();
+                .setSubject(username)
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(SECRET_KEY)
+                .compact();
     }
 
     public String validateToken(String token) {
         return Jwts.parser()
-                   .setSigningKey(SECRET_KEY)
-                   .build()
-                   .parseClaimsJws(token)
-                   .getBody()
-                   .getSubject();
+                .setSigningKey(SECRET_KEY)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 
     public long getExpiration(String token) {
         return Jwts.parser()
-                   .setSigningKey(SECRET_KEY)
-                   .build()
-                   .parseClaimsJws(token)
-                   .getBody()
-                   .getExpiration()
-                   .getTime();
+                .setSigningKey(SECRET_KEY)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration()
+                .getTime();
     }
 }
 

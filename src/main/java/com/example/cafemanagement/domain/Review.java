@@ -110,12 +110,12 @@ public class Review {
     @Override
     public String toString() {
         return "Review{" +
-            "reviewId=" + reviewId +
-            ", title='" + title + '\'' +
-            ", content='" + content + '\'' +
-            ", rating=" + rating +
-            ", user=" + user.getId() + // 유저 ID만 표시
-            ", attachments=" + attachments.size() + " files" +
-            '}';
+                "reviewId=" + reviewId +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", rating=" + rating +
+                ", user=" + user.getId() + // 유저 ID만 표시
+                ", attachments=" + attachments.size() + " files" +
+                '}';
     }
 }

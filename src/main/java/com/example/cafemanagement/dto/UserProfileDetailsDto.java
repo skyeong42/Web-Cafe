@@ -11,7 +11,7 @@ public class UserProfileDetailsDto {
     private List<ReviewDto> reviews;
     private List<BookingDto> bookings;
 
-    // Constructor
+    // Constructord
     public UserProfileDetailsDto(Long userId, String username, String email, String nickname, String profilePicture, List<ReviewDto> reviews, List<BookingDto> bookings) {
         this.userId = userId;
         this.username = username;

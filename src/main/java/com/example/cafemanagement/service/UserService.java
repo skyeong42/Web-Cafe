@@ -38,11 +38,11 @@ public class UserService {
     public User registerUser(UserSaveRequestDto request) {
         validateRegistration(request);
         User user = new User(
-            request.getUsername(),
-            passwordEncoder.encode(request.getPassword()),
-            request.getNickname(),
-            request.getGender(),
-            request.getEmail()
+                request.getUsername(),
+                passwordEncoder.encode(request.getPassword()),
+                request.getNickname(),
+                request.getGender(),
+                request.getEmail()
 
         );
         return userRepository.save(user);
@@ -67,7 +67,7 @@ public class UserService {
 
     public boolean validatePasswordStrength(String password) {
         // 비밀번호가 영문자, 숫자, 특수문자를 포함하는지 정규식을 사용하여 검증
-        return password.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@#$%^&+=]).{8,}$");
+        return password.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&+=]).{8,}$");
     }
 
     public boolean validatePasswordMatch(String password, String confirmPassword) {
@@ -77,7 +77,7 @@ public class UserService {
     @Transactional
     public String login(String username, String rawPassword) {
         User user = userRepository.findByUsername(username)
-                                  .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이디입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이디입니다."));
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
         }
@@ -92,39 +92,37 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserProfileDetailsDto getUserProfileWithDetails(String username) {
         User user = userRepository.findByUsername(username)
-                                  .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
         // 리뷰 DTO 변환
         List<ReviewDto> reviews = user.getReviews().stream()
-                                      .map(review -> new ReviewDto(
-                                          review.getReviewId(),
-                                          review.getTitle(),
-                                          review.getContent(),
-                                          review.getRating(),
-                                          user.getId(),
-                                          review.getCafe().getId(),
-                                          review.getAttachments()))
-                                      .collect(Collectors.toList());
+                .map(review -> new ReviewDto(
+                        review.getReviewId(),
+                        review.getTitle(),
+                        review.getContent(),
+                        review.getRating(),
+                        user.getId(),
+                        review.getCafe().getId())).toList();
 
         // 예약 DTO 변환
         List<BookingDto> bookings = user.getBookings().stream()
-                                        .map(booking -> new BookingDto(
-                                            booking.getBookingId(),
-                                            booking.getTitle(),
-                                            booking.getBookingTime(),
-                                            booking.getStatus(),
-                                            user.getId(),
-                                            booking.getCafe().getId()))
-                                        .collect(Collectors.toList());
+                .map(booking -> new BookingDto(
+                        booking.getBookingId(),
+                        booking.getTitle(),
+                        booking.getBookingTime(),
+                        booking.getStatus(),
+                        user.getId(),
+                        booking.getCafe().getId()))
+                .collect(Collectors.toList());
 
         return new UserProfileDetailsDto(
-            user.getId(),
-            user.getUsername(),
-            user.getEmail(),
-            user.getNickname(),
-            user.getProfilePicture(),
-            reviews,
-            bookings
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getNickname(),
+                user.getProfilePicture(),
+                reviews,
+                bookings
         );
     }
 
@@ -132,7 +130,7 @@ public class UserService {
     @Transactional
     public UserUpdateRequestDto updateUserInfo(String username, UserUpdateRequestDto requestDto) {
         User user = userRepository.findByUsername(username)
-                                  .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
         if (requestDto.getPassword() != null) {
             user.setPassword(passwordEncoder.encode(requestDto.getPassword()));

@@ -8,13 +8,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/reviews")
+@RequestMapping("/api/reviews")
 @Tag(name = "리뷰 관리", description = "리뷰 작성, 수정, 삭제 및 조회 API")
 public class ReviewController {
 
@@ -27,23 +30,32 @@ public class ReviewController {
     @PostMapping
     @Operation(summary = "리뷰 작성", description = "카페에 대한 리뷰를 작성합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "리뷰 작성 성공"),
-        @ApiResponse(responseCode = "400", description = "리뷰 내용 또는 평점이 유효하지 않음")
+            @ApiResponse(responseCode = "200", description = "리뷰 작성 성공"),
+            @ApiResponse(responseCode = "400", description = "리뷰 내용 또는 평점이 유효하지 않음")
     })
-    public ResponseEntity<ReviewDto> writeReview(@RequestBody ReviewSaveRequestDto dto) {
-        ReviewDto createdReview = reviewService.writeReview(dto);
-        return ResponseEntity.ok(createdReview);
+    public ResponseEntity<ReviewDto> writeReview(@RequestBody ReviewSaveRequestDto dto, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String username = authentication.getName();
+        try {
+            ReviewDto createdReview = reviewService.writeReview(dto, username);
+            return ResponseEntity.ok(createdReview);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
     }
 
     @PutMapping("/{reviewId}")
     @Operation(summary = "리뷰 수정", description = "기존 리뷰를 수정합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "리뷰 수정 성공"),
-        @ApiResponse(responseCode = "404", description = "리뷰를 찾을 수 없음")
+            @ApiResponse(responseCode = "200", description = "리뷰 수정 성공"),
+            @ApiResponse(responseCode = "404", description = "리뷰를 찾을 수 없음")
     })
     public ResponseEntity<ReviewDto> editReview(
-        @PathVariable Long reviewId,
-        @RequestBody ReviewUpdateDto dto) {
+            @PathVariable Long reviewId,
+            @RequestBody ReviewUpdateDto dto) {
         ReviewDto updatedReview = reviewService.editReview(reviewId, dto);
         return ResponseEntity.ok(updatedReview);
     }
@@ -51,8 +63,8 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}")
     @Operation(summary = "리뷰 삭제", description = "리뷰를 삭제합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "리뷰 삭제 성공"),
-        @ApiResponse(responseCode = "404", description = "리뷰를 찾을 수 없음")
+            @ApiResponse(responseCode = "200", description = "리뷰 삭제 성공"),
+            @ApiResponse(responseCode = "404", description = "리뷰를 찾을 수 없음")
     })
     public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId) {
         reviewService.deleteReview(reviewId);
@@ -62,8 +74,8 @@ public class ReviewController {
     @GetMapping("/cafe/{cafeId}")
     @Operation(summary = "리뷰 조회", description = "특정 카페에 대한 모든 리뷰를 조회합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "리뷰 조회 성공"),
-        @ApiResponse(responseCode = "404", description = "카페를 찾을 수 없음")
+            @ApiResponse(responseCode = "200", description = "리뷰 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "카페를 찾을 수 없음")
     })
     public ResponseEntity<List<ReviewDto>> getReviewsForCafe(@PathVariable Long cafeId) {
         List<ReviewDto> reviews = reviewService.getReviewsForCafe(cafeId);

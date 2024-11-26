@@ -121,14 +121,14 @@ public class Cafe extends BaseTimeEntity {
     @Override
     public String toString() {
         return "Cafe{" +
-            "cafeId=" + cafeId +
-            ", cafeName='" + cafeName + '\'' +
-            ", location='" + location + '\'' +
-            ", category='" + category + '\'' +
-            ", rating=" + rating +
-            ", description='" + description + '\'' +
-            ", menus=" + menus.size() +
-            '}';
+                "cafeId=" + cafeId +
+                ", cafeName='" + cafeName + '\'' +
+                ", location='" + location + '\'' +
+                ", category='" + category + '\'' +
+                ", rating=" + rating +
+                ", description='" + description + '\'' +
+                ", menus=" + menus.size() +
+                '}';
     }
 
     public Long getId() {

@@ -33,22 +33,20 @@ public class ReviewService {
      * 리뷰 작성
      */
     @Transactional
-    public ReviewDto writeReview(ReviewSaveRequestDto reviewSaveRequestDto) {
-        if (reviewSaveRequestDto.getContent().length() < 20) {
-            throw new IllegalArgumentException("리뷰는 최소 20자 이상이어야 합니다.");
-        }
+    public ReviewDto writeReview(ReviewSaveRequestDto dto, String username) {
+        // 사용자를 username으로 조회
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        User user = userRepository.findById(reviewSaveRequestDto.getUserId())
-                                  .orElseThrow(() -> new IllegalArgumentException("user not found for id: " + reviewSaveRequestDto.getUserId()));
-        Cafe cafe = cafeRepository.findById(reviewSaveRequestDto.getCafeId())
-                                  .orElseThrow(() -> new IllegalArgumentException("cafe not found for id: " + reviewSaveRequestDto.getCafeId()));
+        Cafe cafe = cafeRepository.findById(dto.getCafeId())
+                .orElseThrow(() -> new IllegalArgumentException("cafe not found for id: " + dto.getCafeId()));
 
         Review review = new Review(
-            reviewSaveRequestDto.getTitle(),
-            reviewSaveRequestDto.getContent(),
-            reviewSaveRequestDto.getRating(),
-            user,
-            cafe
+                dto.getTitle(),
+                dto.getContent(),
+                dto.getRating(),
+                user,
+                cafe
         );
 
         Review savedReview = reviewRepository.save(review);
@@ -65,7 +63,7 @@ public class ReviewService {
     @Transactional
     public ReviewDto editReview(Long reviewId, ReviewUpdateDto reviewUpdateDto) {
         Review review = reviewRepository.findById(reviewId)
-                                        .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
 
         if (reviewUpdateDto.getContent().length() < 20) {
             throw new IllegalArgumentException("리뷰는 최소 20자 이상이어야 합니다.");
@@ -87,7 +85,7 @@ public class ReviewService {
     @Transactional
     public void deleteReview(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
-                                        .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
         updateCafeRating(review.getCafe());
         reviewRepository.delete(review);
     }
@@ -99,8 +97,8 @@ public class ReviewService {
     public List<ReviewDto> getReviewsForCafe(Long cafeId) {
         Cafe cafe = cafeRepository.findById(cafeId).orElseThrow(() -> new IllegalArgumentException("cafe not found for id: " + cafeId));
         return reviewRepository.findByCafe(cafe).stream()
-                               .map(this::convertToDto)
-                               .collect(Collectors.toList());
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -108,22 +106,21 @@ public class ReviewService {
      */
     private ReviewDto convertToDto(Review review) {
         return new ReviewDto(
-            review.getId(),
-            review.getTitle(),
-            review.getContent(),
-            review.getRating(),
-            review.getUserId(),
-            review.getCafe().getCafeId(),
-            review.getAttachments()
+                review.getId(),
+                review.getTitle(),
+                review.getContent(),
+                review.getRating(),
+                review.getUserId(),
+                review.getCafe().getCafeId()
         );
     }
 
     private void updateCafeRating(Cafe cafe) {
         List<Review> reviews = reviewRepository.findByCafe(cafe);
         double averageRating = reviews.stream()
-                                      .mapToDouble(Review::getRating)
-                                      .average()
-                                      .orElse(0.0);
+                .mapToDouble(Review::getRating)
+                .average()
+                .orElse(0.0);
 
         cafe.setRating(averageRating);
         cafeRepository.save(cafe);

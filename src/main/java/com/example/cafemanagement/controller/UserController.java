@@ -3,11 +3,18 @@ package com.example.cafemanagement.controller;
 import com.example.cafemanagement.dto.LoginDto;
 import com.example.cafemanagement.dto.UserSaveRequestDto;
 import com.example.cafemanagement.service.UserService;
+
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
 public class UserController {
@@ -27,18 +34,22 @@ public class UserController {
 
     // 회원가입 처리
     @PostMapping("/register")
-    public String registerUser(UserSaveRequestDto userDto, BindingResult result, Model model) {
+    public String registerUser(@ModelAttribute("userDto") UserSaveRequestDto userDto, BindingResult result, Model model) {
         if (result.hasErrors()) {
             return "registration_form"; // 에러 발생 시 폼 재렌더링
         }
 
         try {
-            userService.registerUser(userDto);
+            userService.registerUser(userDto); // 회원가입 처리
         } catch (IllegalArgumentException e) {
+            // 예상된 예외 발생 시
             model.addAttribute("errorMessage", e.getMessage());
-            return "registration_form"; // 에러 메시지와 함께 폼 재렌더링
+            return "registration_form"; // 에러 메시지와 함께 페이지 재렌더링
+        } catch (Exception e) {
+            // 기타 예외 발생 시
+            model.addAttribute("errorMessage", "알 수 없는 에러가 발생했습니다. 다시 시도해주세요.");
+            return "registration_form";
         }
-
         return "redirect:/login"; // 성공 시 로그인 페이지로 이동
     }
 
@@ -51,18 +62,24 @@ public class UserController {
 
     // 로그인 처리
     @PostMapping("/login")
-    public String loginUser(LoginDto loginDto, BindingResult result, Model model) {
+    public String loginUser(LoginDto loginDto, BindingResult result, HttpServletResponse response) {
         if (result.hasErrors()) {
-            model.addAttribute("errorMessage", "로그인 정보를 다시 확인해주세요.");
             return "login";
         }
 
         try {
             String token = userService.login(loginDto.getUsername(), loginDto.getPassword());
-            return "redirect:/"; // 로그인 성공 시 메인 페이지로 리다이렉트
+
+            // JWT를 쿠키에 저장
+            Cookie jwtCookie = new Cookie("Authorization", token);
+            jwtCookie.setHttpOnly(true);
+            jwtCookie.setPath("/");
+            jwtCookie.setMaxAge(60 * 60 * 24); // 1일 동안 유효
+            response.addCookie(jwtCookie);
+
+            return "redirect:/";
         } catch (IllegalArgumentException e) {
-            model.addAttribute("errorMessage", e.getMessage());
-            return "login"; // 에러 메시지와 함께 로그인 폼 재렌더링
+            return "login";
         }
     }
 

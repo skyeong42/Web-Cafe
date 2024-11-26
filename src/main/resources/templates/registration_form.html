@@ -181,5 +181,17 @@
     <!-- 에러 메시지 -->
     <div th:if="${errorMessage}" class="error" th:text="${errorMessage}"></div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const errorMessageElement = document.getElementById('errorMessage');
+        if (errorMessageElement) {
+            const errorMessage = errorMessageElement.getAttribute('data-error-message');
+            if (errorMessage) {
+                alert(errorMessage); // 에러 팝업 띄우기
+            }
+        }
+    });
+</script>
 </body>
 </html>
