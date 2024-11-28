@@ -1,13 +1,11 @@
 package com.example.cafemanagement.service;
 
-import com.example.cafemanagement.domain.Cafe;
-import com.example.cafemanagement.domain.Category;
-import com.example.cafemanagement.domain.Location;
-import com.example.cafemanagement.domain.Menu;
+import com.example.cafemanagement.domain.*;
 import com.example.cafemanagement.dto.*;
 import com.example.cafemanagement.repository.CafeRepository;
 import com.example.cafemanagement.repository.CategoryRepository;
 import com.example.cafemanagement.repository.MenuRepository;
+import com.example.cafemanagement.repository.HashtagRepository;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,7 +21,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+/**
+ * 변경사항: Cafe, CafeDto생성자에 Hashtag 추가 -> 관련 메서드 모두 수정
+ */
 
 @Service
 public class CafeService {
@@ -31,24 +34,44 @@ public class CafeService {
     private final CafeRepository cafeRepository;
     private final MenuRepository menuRepository;
     private final CategoryRepository categoryRepository;
+    private final HashtagRepository hashtagRepository; // 해시태그 저장소 추가
     private final String apiKey = "19dc7cdd122bfe1e88e7c68cdc00dd42"; // 카카오 REST API 키
     private final String apiUrl = "https://dapi.kakao.com/v2/local/search/keyword.json";
 
 
-    public CafeService(CafeRepository cafeRepository, MenuRepository menuRepository, CategoryRepository categoryRepository) {
+    public CafeService(CafeRepository cafeRepository, MenuRepository menuRepository,
+                       CategoryRepository categoryRepository, HashtagRepository hashtagRepository) {
         this.cafeRepository = cafeRepository;
         this.menuRepository = menuRepository;
         this.categoryRepository = categoryRepository;
+        this.hashtagRepository = hashtagRepository;
     }
 
+    //수정
     @Transactional
     public Long addCafe(CafeRequestDto dto) {
-        // 카테고리와 위치 생성
-        Category category = new Category(dto.getCategory());
+        // 카테고리 조회
+        Category category = categoryRepository.findByCategoryName(dto.getCategory())
+                .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다."));
+
+        // 위치 생성
         Location location = Location.of(dto.getLocation());
 
+        // 해시태그 처리 (영속화 보장)
+        Set<Hashtag> hashtags = dto.getHashtags().stream()
+                .map(tag -> {
+                    Hashtag existingHashtag = hashtagRepository.findByName(tag).orElse(null);
+                    if (existingHashtag != null) {
+                        return existingHashtag; // 이미 존재하는 해시태그 사용
+                    } else {
+                        Hashtag newHashtag = new Hashtag(tag); // 새로운 해시태그 생성
+                        return hashtagRepository.save(newHashtag); // 저장 후 반환
+                    }
+                })
+                .collect(Collectors.toSet());
+
         // 카페 생성 및 저장
-        Cafe cafe = new Cafe(dto.getCafeName(), location, 0L, dto.getDescription(), dto.getCafeImageUrl(), category);
+        Cafe cafe = new Cafe(dto.getCafeName(), location, 0L, dto.getDescription(), dto.getCafeImageUrl(), category, hashtags);
         Cafe savedCafe = cafeRepository.save(cafe);
 
         // 메뉴 추가
@@ -56,6 +79,8 @@ public class CafeService {
 
         return savedCafe.getCafeId();
     }
+
+
 
 
     @Transactional(readOnly = true)
@@ -67,9 +92,24 @@ public class CafeService {
                 .map(menu -> new MenuDto(menu.getName(), menu.getPrice()))
                 .collect(Collectors.toList());
 
-        return new CafeDto(cafe.getCafeId(), cafe.getCafeName(), LocationDto.of(cafe.getLocation()), cafe.getRating(), cafe.getDescription(), cafe.getCategory().getCategoryName(),
-                cafe.getCafeImageUrl(), menus, cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafeId)).collect(Collectors.toList()));
+        List<String> hashtags = cafe.getHashtags().stream()
+                .map(Hashtag::getName)
+                .collect(Collectors.toList());
+
+        return new CafeDto(
+                cafe.getCafeId(),
+                cafe.getCafeName(),
+                LocationDto.of(cafe.getLocation()),
+                cafe.getRating(),
+                cafe.getDescription(),
+                cafe.getCategory().getCategoryName(),
+                cafe.getCafeImageUrl(),
+                menus,
+                cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafeId)).collect(Collectors.toList()),
+                hashtags // 해시태그 추가
+        );
     }
+
 
     @Transactional(readOnly = true)
     public List<CafeDto> searchCafes(String keyword, String category, String hashtag, Double minRating) {
@@ -89,9 +129,12 @@ public class CafeService {
                         cafe.getCategory().getCategoryName(),
                         cafe.getCafeImageUrl(),
                         cafe.getMenus().stream().map(MenuDto::of).toList(),
-                        cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafe.getId())).toList())
-                ).toList();
+                        cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafe.getId())).toList(),
+                        cafe.getHashtags().stream().map(Hashtag::getName).toList() // 해시태그 추가
+                ))
+                .toList();
     }
+
 
     public List<CafeDto> searchCafesByName(String query) {
         return cafeRepository.findByCafeNameContainingIgnoreCase(query).stream()
@@ -118,9 +161,12 @@ public class CafeService {
                         cafe.getCategory().getCategoryName(),
                         cafe.getCafeImageUrl(),
                         cafe.getMenus().stream().map(MenuDto::of).toList(),
-                        cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafe.getId())).toList())
-                ).toList();
+                        cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafe.getId())).toList(),
+                        cafe.getHashtags().stream().map(Hashtag::getName).toList() // 해시태그 추가
+                ))
+                .toList();
     }
+
 
     @Transactional(readOnly = true)
     public List<CafeDto> getCafesByCategory(String categoryName) {
@@ -135,9 +181,12 @@ public class CafeService {
                         cafe.getCategory().getCategoryName(),
                         cafe.getCafeImageUrl(),
                         cafe.getMenus().stream().map(MenuDto::of).toList(),
-                        cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafe.getId())).toList())
-                ).toList();
+                        cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafe.getId())).toList(),
+                        cafe.getHashtags().stream().map(Hashtag::getName).toList() // 해시태그 추가
+                ))
+                .toList();
     }
+
 
     @Transactional
     public void updateCafe(Long cafeId, CafeDto dto) {
@@ -170,9 +219,12 @@ public class CafeService {
                         cafe.getCategory().getCategoryName(),
                         cafe.getCafeImageUrl(),
                         cafe.getMenus().stream().map(MenuDto::of).toList(),
-                        cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafe.getId())).toList())
-                ).toList();
+                        cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafe.getId())).toList(),
+                        cafe.getHashtags().stream().map(Hashtag::getName).toList() // 해시태그 추가
+                ))
+                .toList();
     }
+
 
     @Transactional(readOnly = true)
     public List<CategoryDto> getAllCategories() {
@@ -180,43 +232,39 @@ public class CafeService {
 
     }
 
+    /**
+     * Cafe -> CafeDto 변환 메서드
+     */
     private CafeDto convertToDto(Cafe cafe) {
-        // LocationDto 생성
-        LocationDto locationDto = new LocationDto(
-                cafe.getLocation().getLatitude(),
-                cafe.getLocation().getLongitude(),
-                cafe.getLocation().getAddress()
-        );
-
-        // MenuDto 리스트 생성
-        List<MenuDto> menuDtos = cafe.getMenus().stream()
-                .map(menu -> new MenuDto(menu.getName(), menu.getPrice()))
-                .collect(Collectors.toList());
-
-        // ReviewDto 리스트 생성
-        List<ReviewDto> reviewDtos = cafe.getReviews().stream()
-                .map(review -> new ReviewDto(
-                        review.getReviewId(),
-                        review.getTitle(),
-                        review.getContent(),
-                        review.getRating(),
-                        review.getUser().getId(),
-                        cafe.getCafeId(),
-                        review.getAttachments().stream()
-                                .collect(Collectors.toList())
-                ))
-                .collect(Collectors.toList());
-
         return new CafeDto(
                 cafe.getCafeId(),
                 cafe.getCafeName(),
-                locationDto,
+                new LocationDto(
+                        cafe.getLocation().getLatitude(),
+                        cafe.getLocation().getLongitude(),
+                        cafe.getLocation().getAddress()
+                ),
                 cafe.getRating(),
                 cafe.getDescription(),
                 cafe.getCategory().getCategoryName(),
                 cafe.getCafeImageUrl(),
-                menuDtos,
-                reviewDtos
+                cafe.getMenus().stream()
+                        .map(menu -> new MenuDto(menu.getName(), menu.getPrice()))
+                        .collect(Collectors.toList()),
+                cafe.getReviews().stream()
+                        .map(review -> new ReviewDto(
+                                review.getReviewId(),
+                                review.getTitle(),
+                                review.getContent(),
+                                review.getRating(),
+                                review.getUser().getId(),
+                                cafe.getCafeId(),
+                                new ArrayList<>(review.getAttachments()) // Attachments 변환
+                        ))
+                        .collect(Collectors.toList()),
+                cafe.getHashtags().stream()
+                        .map(Hashtag::getName)
+                        .collect(Collectors.toList())
         );
     }
 
@@ -273,4 +321,81 @@ public class CafeService {
 
         return cafeList;
     }
+
+    //로직추가예정
+    @Transactional
+    public void saveSearchResults(List<CafeDto> cafes) {
+        // Logic to save or log search results
+        cafes.forEach(cafe -> {
+            System.out.println("Saving search result: " + cafe.getCafeName());
+            // Implement persistence logic if necessary
+        });
+    }
+
+    /**
+     * 내부 DB 데이터 필터링 메서드
+     */
+    @Transactional(readOnly = true)
+    public List<CafeDto> filterCafes(String category, List<String> hashtags, Double minRating, String keyword) {
+        Category categoryEntity = (category != null && !category.isBlank())
+                ? categoryRepository.findByCategoryName(category).orElse(null)
+                : null;
+
+        // DB 데이터 필터링
+        List<Cafe> filteredCafes = cafeRepository.findAll().stream()
+                .filter(cafe -> categoryEntity == null || cafe.getCategory().equals(categoryEntity))
+                .filter(cafe -> minRating == null || cafe.getRating() >= minRating)
+                .filter(cafe -> keyword == null || cafe.getCafeName().contains(keyword) || cafe.getDescription().contains(keyword))
+                .filter(cafe -> {
+                    if (hashtags == null || hashtags.isEmpty()) return true;
+                    Set<String> cafeHashtags = cafe.getHashtags().stream()
+                            .map(Hashtag::getName)
+                            .collect(Collectors.toSet());
+                    return cafeHashtags.containsAll(hashtags);
+                })
+                .collect(Collectors.toList());
+
+        // Cafe -> CafeDto 변환
+        return filteredCafes.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+
+    //카카오 API 검색 후 필터링 없이 반환
+    public List<CafeDto> searchFromKakaoApi(String keyword) {
+        List<KakaoCafeDto> kakaoCafes = searchCafes(keyword);
+
+        // 카카오 API 데이터를 CafeDto로 변환
+        return kakaoCafes.stream()
+                .map(cafe -> new CafeDto(
+                        null, // 외부 데이터에는 DB ID가 없음
+                        cafe.getPlaceName(),
+                        new LocationDto(
+                                Double.parseDouble(cafe.getY()),
+                                Double.parseDouble(cafe.getX()),
+                                cafe.getAddressName()
+                        ),
+                        0.0, // 별점 정보 없음
+                        "카카오 데이터",
+                        "외부 데이터",
+                        null, // 이미지 없음
+                        List.of(), // 메뉴 없음
+                        List.of(), // 리뷰 없음
+                        List.of() // 해시태그 없음
+                ))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 검색 및 필터링 메서드
+     * 내부 DB 데이터만 검색 및 필터링
+     */
+    @Transactional(readOnly = true)
+    public List<CafeDto> searchAndFilterCafes(String keyword, String category, List<String> hashtags, Double minRating) {
+        return filterCafes(category, hashtags, minRating, keyword);
+    }
+
+
+
 }

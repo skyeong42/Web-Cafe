@@ -7,7 +7,8 @@ public class CafeRequestDto {
     private String description;
     private String category;
     private LocationDto location;
-    private List<HashtagDto> hashtags;
+    //수정
+    private List<String> hashtags;
     private List<MenuDto> menus;
 
     public String getCafeImageUrl() {
@@ -15,6 +16,7 @@ public class CafeRequestDto {
     }
 
     private String cafeImageUrl;
+
 
     // Getters and Setters
     public String getCafeName() {
@@ -49,14 +51,15 @@ public class CafeRequestDto {
         this.location = location;
     }
 
-    public List<HashtagDto> getHashtags() {
+    //수정
+    public List<String> getHashtags() {
         return hashtags;
     }
 
-    public void setHashtags(List<HashtagDto> hashtags) {
+    //수정 List<String>으로 변경
+    public void setHashtags(List<String> hashtags) {
         this.hashtags = hashtags;
     }
-
     public List<MenuDto> getMenus() {
         return menus;
     }

@@ -1,5 +1,6 @@
 package com.example.cafemanagement.controller;
 
+import com.example.cafemanagement.domain.Category;
 import com.example.cafemanagement.dto.*;
 import com.example.cafemanagement.service.CafeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -7,10 +8,13 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/cafes")
@@ -46,20 +50,7 @@ public class CafeController {
         return ResponseEntity.ok(cafe);
     }
 
-    @GetMapping("/search")
-    @Operation(summary = "카페 검색", description = "키워드, 카테고리, 해시태그, 평점으로 카페를 검색합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "검색 성공"),
-            @ApiResponse(responseCode = "400", description = "유효하지 않은 검색 조건")
-    })
-    public ResponseEntity<List<CafeDto>> searchCafes(
-            @RequestParam(required = false) @Parameter(description = "검색 키워드") String keyword,
-            @RequestParam(required = false) @Parameter(description = "카테고리 이름") String category,
-            @RequestParam(required = false) @Parameter(description = "해시태그 이름") String hashtag,
-            @RequestParam(required = false) @Parameter(description = "최소 별점") Double minRating) {
-        List<CafeDto> cafes = cafeService.searchCafes(keyword, category, hashtag, minRating);
-        return ResponseEntity.ok(cafes);
-    }
+
 
     @GetMapping("/categories")
     @Operation(summary = "카테고리 조회", description = "모든 카페 카테고리를 조회합니다.")
@@ -141,4 +132,80 @@ public class CafeController {
         List<CafeDto> cafes = cafeService.findCafesByLocation(location);
         return ResponseEntity.ok(cafes);
     }
+
+    // 매장찾기 페이지
+    @GetMapping("/find-store")
+    @Operation(summary = "Find Store Page", description = "Find store page rendering")
+    public String renderFindStorePage() {
+        return "find-store"; // Returns the Thymeleaf template for the find-store page
+    }
+
+    //카테고리, 해시태그, 별점 필터
+    //추가
+    @GetMapping("/filters")
+    @Operation(summary = "Filter Cafes", description = "Filters cafes from internal DB only.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Filter success"),
+            @ApiResponse(responseCode = "400", description = "Invalid request data"),
+            @ApiResponse(responseCode = "500", description = "Server error")
+    })
+    public ResponseEntity<List<CafeDto>> filterCafes(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) List<String> hashtags,
+            @RequestParam(required = false) Double minRating,
+            @RequestParam(required = false) String keyword
+    ) {
+        try {
+            // Null 또는 빈 값 처리
+            category = (category != null && !category.isBlank()) ? category : null;
+            keyword = (keyword != null && !keyword.isBlank()) ? keyword : null;
+            hashtags = (hashtags != null && !hashtags.isEmpty()) ? hashtags : List.of();
+
+            // 서비스 호출 (내부 DB 필터링 전용)
+            List<CafeDto> filteredResults = cafeService.filterCafes(category, hashtags, minRating, keyword);
+
+            return ResponseEntity.ok(filteredResults);
+        } catch (Exception e) {
+            // 로깅은 시스템에 따라 변경 가능
+            System.err.println("Error in filterCafes: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+
+
+
+
+
+    @PostMapping("/save-search")
+    @Operation(summary = "Save Search Results", description = "Save search results for cafes")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Save success"),
+            @ApiResponse(responseCode = "400", description = "Invalid request data")
+    })
+    public ResponseEntity<Void> saveSearchResults(@RequestBody List<CafeDto> cafes) {
+        cafeService.saveSearchResults(cafes);
+        return ResponseEntity.ok().build();
+    }
+
+    // 키워드 중심 검색
+    @GetMapping("/search")
+    @Operation(summary = "Search and filter cafes", description = "Search cafes using keyword, and apply filters from DB.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Search success"),
+            @ApiResponse(responseCode = "400", description = "Invalid request data")
+    })
+    public ResponseEntity<List<CafeDto>> searchAndFilterCafes(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) List<String> hashtags,
+            @RequestParam(required = false) Double minRating
+    ) {
+        List<CafeDto> results = cafeService.searchAndFilterCafes(keyword, category, hashtags, minRating);
+        return ResponseEntity.ok(results);
+    }
+
+
+
 }

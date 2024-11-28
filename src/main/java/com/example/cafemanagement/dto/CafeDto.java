@@ -24,9 +24,12 @@ public class CafeDto {
 
     private List<ReviewDto> reviewDtos;
 
-    // 생성자
+    //추가
+    private List<String> hashtags; // 해시태그 리스트
+
+    // 생성자 수정
     public CafeDto(Long cafeId, String cafeName, LocationDto location, double rating, String description, String category, String imageUrl, List<MenuDto> menus,
-                   List<ReviewDto> reviewDtos) {
+                   List<ReviewDto> reviewDtos, List<String> hashtags) {
         this.cafeId = cafeId;
         this.cafeName = cafeName;
         this.location = location;
@@ -36,7 +39,9 @@ public class CafeDto {
         this.imageUrl = imageUrl;
         this.menus = menus;
         this.reviewDtos = reviewDtos;
+        this.hashtags = hashtags;
     }
+
 
     // Getters
     public Long getCafeId() {
@@ -67,6 +72,11 @@ public class CafeDto {
         return menus;
     }
 
+    //추가
+    public List<String> getHashtags() {
+        return hashtags;
+    }
+
     @Override
     public String toString() {
         return "CafeDto{" +
@@ -79,4 +89,5 @@ public class CafeDto {
             ", menus=" + menus +
             '}';
     }
+
 }

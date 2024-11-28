@@ -40,6 +40,9 @@ public class SecurityConfig {
         "/api-docs/**",
         /* user */
         "/users/register", "/users/login",
+        /* 추가 엔드포인트 */
+        "/filters",
+        "/kakao/search"
 
 
     };
