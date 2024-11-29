@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>즐겨찾기 목록</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+  <h1>즐겨찾기 목록</h1>
+  <div id="favorites-list" class="row">
+    <!-- 즐겨찾기 목록이 여기에 렌더링됩니다. -->
+  </div>
+</div>
+
+<script>
+  // 사용자 ID (로그인한 사용자의 ID를 서버에서 받아와 설정)
+  const userId = 1;
+
+  // 즐겨찾기 목록 가져오기
+  function loadFavorites() {
+      fetch(`/favorites/${userId}`)
+          .then(response => response.json())
+          .then(favorites => {
+              const favoritesList = document.getElementById('favorites-list');
+              favoritesList.innerHTML = ''; // 기존 내용을 초기화
+              favorites.forEach(favorite => {
+                  const cafeCard = `
+                  <div class="col-md-4">
+                      <div class="card mb-4">
+                          <img src="${favorite.imageUrl}" class="card-img-top" alt="카페 이미지">
+                          <div class="card-body">
+                              <h5 class="card-title">${favorite.cafeName}</h5>
+                              <p class="card-text">${favorite.description}</p>
+                              <p><strong>평점:</strong> ${favorite.rating}</p>
+                              <button class="btn btn-danger" onclick="removeFavorite(${favorite.cafeId})">삭제</button>
+                          </div>
+                      </div>
+                  </div>
+                  `;
+                  favoritesList.innerHTML += cafeCard;
+              });
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('즐겨찾기 목록을 불러오는 데 실패했습니다.');
+          });
+  }
+
+  // 즐겨찾기 삭제 요청
+  function removeFavorite(cafeId) {
+      fetch(`/favorites/${userId}/${cafeId}`, {
+          method: 'DELETE',
+      })
+      .then(response => {
+          if (response.ok) {
+              alert('즐겨찾기에서 삭제되었습니다!');
+              loadFavorites(); // 삭제 후 목록 갱신
+          } else {
+              alert('즐겨찾기 삭제 중 문제가 발생했습니다.');
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          alert('즐겨찾기 삭제 요청에 실패했습니다.');
+      });
+  }
+
+  // 페이지 로드 시 즐겨찾기 목록 가져오기
+  document.addEventListener('DOMContentLoaded', loadFavorites);
+</script>
+</body>
+</html>

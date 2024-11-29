@@ -52,6 +52,7 @@ public class CafeController {
         return ResponseEntity.ok(cafe);
     }
 
+    //해시태그 수정
     @GetMapping("/search")
     @Operation(summary = "카페 검색", description = "키워드, 카테고리, 해시태그, 평점으로 카페를 검색합니다.")
     @ApiResponses(value = {
@@ -61,9 +62,9 @@ public class CafeController {
     public ResponseEntity<List<CafeDto>> searchCafes(
             @RequestParam(required = false) @Parameter(description = "검색 키워드") String keyword,
             @RequestParam(required = false) @Parameter(description = "카테고리 이름") String category,
-            @RequestParam(required = false) @Parameter(description = "해시태그 이름") String hashtag,
+            @RequestParam(required = false) @Parameter(description = "해시태그 이름") List<String> hashtags,
             @RequestParam(required = false) @Parameter(description = "최소 별점") Double minRating) {
-        List<CafeDto> cafes = cafeService.searchCafes(keyword, category, hashtag, minRating);
+        List<CafeDto> cafes = cafeService.searchCafes(keyword, category, hashtags, minRating);
         return ResponseEntity.ok(cafes);
     }
 

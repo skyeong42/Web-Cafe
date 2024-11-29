@@ -1,5 +1,6 @@
 package com.example.cafemanagement.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CafeDto {
@@ -23,10 +24,11 @@ public class CafeDto {
     }
 
     private List<ReviewDto> reviewDtos;
+    private List<String> hashtags;
 
     // 생성자
     public CafeDto(Long cafeId, String cafeName, LocationDto location, double rating, String description, String category, String imageUrl, List<MenuDto> menus,
-                   List<ReviewDto> reviewDtos) {
+                   List<ReviewDto> reviewDtos, List<String> hashtags) {
         this.cafeId = cafeId;
         this.cafeName = cafeName;
         this.location = location;
@@ -36,6 +38,7 @@ public class CafeDto {
         this.imageUrl = imageUrl;
         this.menus = menus;
         this.reviewDtos = reviewDtos;
+        this.hashtags = hashtags != null ? hashtags : new ArrayList<>(); // null 처리
     }
 
     // Getters
@@ -66,6 +69,8 @@ public class CafeDto {
     public List<MenuDto> getMenus() {
         return menus;
     }
+
+    public List<String> getHashtags() { return hashtags;}
 
     @Override
     public String toString() {

@@ -7,6 +7,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Cafe 엔티티에 Set<Hashtag>필드 추가
+ * */
 @Entity
 public class Cafe extends BaseTimeEntity {
 
@@ -40,6 +43,14 @@ public class Cafe extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category; // 카페 카테고리
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "cafe_hashtags",
+            joinColumns = @JoinColumn(name = "cafe_id"),
+            inverseJoinColumns = @JoinColumn(name = "hashtag_id")
+    )
+    private Set<Hashtag> hashtags = new HashSet<>(); // 다대다 관계
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "location_id", nullable = false)
@@ -137,5 +148,26 @@ public class Cafe extends BaseTimeEntity {
 
     public Category getCategory() {
         return category;
+    }
+
+    // 해시태그 추가 메서드
+    public void addHashtag(Hashtag hashtag) {
+        if (this.hashtags == null) {
+            this.hashtags = new HashSet<>();
+        }
+        if (!this.hashtags.contains(hashtag)) {
+            this.hashtags.add(hashtag);
+            hashtag.getCafes().add(this); // 양방향 연관 관계 설정
+        }
+    }
+
+
+
+    public Set<Hashtag> getHashtags() {
+        return hashtags;
+    }
+
+    public void setHashtags(Set<Hashtag> hashtags) {
+        this.hashtags = hashtags;
     }
 }

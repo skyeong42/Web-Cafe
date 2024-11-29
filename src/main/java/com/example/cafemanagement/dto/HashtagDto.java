@@ -3,10 +3,6 @@ package com.example.cafemanagement.dto;
 public class HashtagDto {
     private final Long id;
 
-    public String getName() {
-        return name;
-    }
-
     private final String name;
 
     public HashtagDto(Long id, String name) {
@@ -19,7 +15,7 @@ public class HashtagDto {
         return id;
     }
 
-    public String getTagName() {
+    public String getName() {
         return name;
     }
 }

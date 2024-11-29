@@ -529,6 +529,12 @@
                                 <span th:text="${cafe.description}">설명</span>
                                 <span th:text="${cafe.category}">카테고리</span>
                             </div>
+                            <!-- 즐겨찾기 버튼 -->
+                            <button
+                                    class="favorite-button"
+                                    onclick="addFavorite([[${cafe.cafeId}]])">
+                                ★
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -881,6 +887,29 @@
             // ... 나머지 코드
         });
     });
+
+    // 사용자 ID (로그인한 사용자의 ID를 서버에서 받아와서 설정)
+    const userId = 1; // 로그인된 사용자의 ID를 설정하세요.
+
+    // 즐겨찾기 추가 요청
+    function addFavorite(cafeId) {
+        fetch(`/favorites/${userId}/${cafeId}`, {
+            method: 'POST',
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('즐겨찾기에 추가되었습니다!');
+            } else if (response.status === 400) {
+                alert('이미 즐겨찾기에 추가된 카페입니다.');
+            } else {
+                alert('즐겨찾기 추가 중 문제가 발생했습니다.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('즐겨찾기 추가 요청에 실패했습니다.');
+        });
+    }
 
     /*]]>*/
 </script>

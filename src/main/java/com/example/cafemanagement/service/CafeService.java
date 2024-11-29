@@ -4,6 +4,7 @@ import com.example.cafemanagement.domain.Cafe;
 import com.example.cafemanagement.domain.Category;
 import com.example.cafemanagement.domain.Location;
 import com.example.cafemanagement.domain.Menu;
+import com.example.cafemanagement.domain.Hashtag;
 import com.example.cafemanagement.dto.CafeDto;
 import com.example.cafemanagement.dto.CafeRequestDto;
 import com.example.cafemanagement.dto.CategoryDto;
@@ -13,6 +14,7 @@ import com.example.cafemanagement.dto.ReviewDto;
 import com.example.cafemanagement.dto.ReviewResponseDto;
 import com.example.cafemanagement.repository.CafeRepository;
 import com.example.cafemanagement.repository.CategoryRepository;
+import com.example.cafemanagement.repository.HashtagRepository;
 import com.example.cafemanagement.repository.MenuRepository;
 
 import org.springframework.stereotype.Service;
@@ -30,11 +32,14 @@ public class CafeService {
     private final CafeRepository cafeRepository;
     private final MenuRepository menuRepository;
     private final CategoryRepository categoryRepository;
+    private final HashtagRepository hashtagRepository; // 추가
 
-    public CafeService(CafeRepository cafeRepository, MenuRepository menuRepository, CategoryRepository categoryRepository) {
+    public CafeService(CafeRepository cafeRepository, MenuRepository menuRepository,
+                       CategoryRepository categoryRepository, HashtagRepository hashtagRepository) {
         this.cafeRepository = cafeRepository;
         this.menuRepository = menuRepository;
         this.categoryRepository = categoryRepository;
+        this.hashtagRepository = hashtagRepository; // 추가
     }
 
     @Transactional
@@ -63,16 +68,36 @@ public class CafeService {
                 .map(menu -> new MenuDto(menu.getName(), menu.getPrice()))
                 .collect(Collectors.toList());
 
-        return new CafeDto(cafe.getCafeId(), cafe.getCafeName(), LocationDto.of(cafe.getLocation()), cafe.getRating(), cafe.getDescription(), cafe.getCategory().getCategoryName(),
-                cafe.getCafeImageUrl(), menus, cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafeId)).collect(Collectors.toList()));
+        List<String> hashtags = cafe.getHashtags().stream()
+                .map(Hashtag::getName)
+                .collect(Collectors.toList());
+
+        return new CafeDto(
+                cafe.getCafeId(),
+                cafe.getCafeName(),
+                LocationDto.of(cafe.getLocation()),
+                cafe.getRating(),
+                cafe.getDescription(),
+                cafe.getCategory().getCategoryName(),
+                cafe.getCafeImageUrl(),
+                menus,
+                cafe.getReviews().stream()
+                        .map(review -> ReviewDto.of(review, cafeId))
+                        .collect(Collectors.toList()),
+                hashtags // 추가된 해시태그 필드
+        );
     }
 
     @Transactional(readOnly = true)
-    public List<CafeDto> searchCafes(String keyword, String category, String hashtag, Double minRating) {
+    public List<CafeDto> searchCafes(String keyword, String category, List<String> hashtags, Double minRating) {
         List<Cafe> filteredCafes = cafeRepository.findAll().stream()
                 .filter(cafe -> (keyword == null || cafe.getCafeName().contains(keyword) || cafe.getDescription().contains(keyword)))
                 .filter(cafe -> (category == null || cafe.getCategory().getCategoryName().equalsIgnoreCase(category)))
                 .filter(cafe -> (minRating == null || cafe.getRating() >= minRating))
+                .filter(cafe -> (hashtags == null || hashtags.isEmpty() || cafe.getHashtags().stream()
+                        .map(Hashtag::getName)
+                        .collect(Collectors.toSet())
+                        .containsAll(hashtags)))
                 .collect(Collectors.toList());
 
         return filteredCafes.stream()
@@ -85,9 +110,11 @@ public class CafeService {
                         cafe.getCategory().getCategoryName(),
                         cafe.getCafeImageUrl(),
                         cafe.getMenus().stream().map(MenuDto::of).toList(),
-                        cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafe.getId())).toList())
+                        cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafe.getId())).toList(),
+                        cafe.getHashtags().stream().map(Hashtag::getName).toList())
                 ).toList();
     }
+
 
     public List<CafeDto> searchCafesByName(String query) {
         return cafeRepository.findByCafeNameContainingIgnoreCase(query).stream()
@@ -114,13 +141,17 @@ public class CafeService {
                         cafe.getCategory().getCategoryName(),
                         cafe.getCafeImageUrl(),
                         cafe.getMenus().stream().map(MenuDto::of).toList(),
-                        cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafe.getId())).toList())
-                ).toList();
+                        cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafe.getId())).toList(),
+                        cafe.getHashtags() != null ? cafe.getHashtags().stream().map(Hashtag::getName).toList() : List.of() // 해시태그 처리
+                ))
+                .toList();
     }
+
 
     @Transactional(readOnly = true)
     public List<CafeDto> getCafesByCategory(String categoryName) {
-        Category category = categoryRepository.findByCategoryName(categoryName).orElse(null);
+        Category category = categoryRepository.findByCategoryName(categoryName)
+                .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다."));
         return cafeRepository.findByCategory(category).stream()
                 .map(cafe -> new CafeDto(
                         cafe.getCafeId(),
@@ -131,9 +162,12 @@ public class CafeService {
                         cafe.getCategory().getCategoryName(),
                         cafe.getCafeImageUrl(),
                         cafe.getMenus().stream().map(MenuDto::of).toList(),
-                        cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafe.getId())).toList())
-                ).toList();
+                        cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafe.getId())).toList(),
+                        cafe.getHashtags() != null ? cafe.getHashtags().stream().map(Hashtag::getName).toList() : List.of() // 해시태그 처리
+                ))
+                .toList();
     }
+
 
     @Transactional
     public void updateCafe(Long cafeId, CafeDto dto) {
@@ -166,9 +200,12 @@ public class CafeService {
                         cafe.getCategory().getCategoryName(),
                         cafe.getCafeImageUrl(),
                         cafe.getMenus().stream().map(MenuDto::of).toList(),
-                        cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafe.getId())).toList())
-                ).toList();
+                        cafe.getReviews().stream().map(review -> ReviewDto.of(review, cafe.getId())).toList(),
+                        cafe.getHashtags() != null ? cafe.getHashtags().stream().map(Hashtag::getName).toList() : List.of() // 해시태그 처리
+                ))
+                .toList();
     }
+
 
     @Transactional(readOnly = true)
     public List<CategoryDto> getAllCategories() {
@@ -201,6 +238,14 @@ public class CafeService {
                 ))
                 .collect(Collectors.toList());
 
+        // Hashtag 리스트 생성
+        List<String> hashtags = cafe.getHashtags() != null
+                ? cafe.getHashtags().stream()
+                .map(Hashtag::getName)
+                .collect(Collectors.toList())
+                : List.of(); // null 처리
+
+        // CafeDto 생성 및 반환
         return new CafeDto(
                 cafe.getCafeId(),
                 cafe.getCafeName(),
@@ -210,7 +255,8 @@ public class CafeService {
                 cafe.getCategory().getCategoryName(),
                 cafe.getCafeImageUrl(),
                 menuDtos,
-                reviewDtos
+                reviewDtos,
+                hashtags // 추가된 해시태그 필드
         );
     }
 

@@ -1,9 +1,6 @@
 package com.example.cafemanagement.controller;
 
-import com.example.cafemanagement.dto.CafeDto;
-import com.example.cafemanagement.dto.LocationDto;
-import com.example.cafemanagement.dto.MenuDto;
-import com.example.cafemanagement.dto.ReviewDto;
+import com.example.cafemanagement.dto.*;
 import com.example.cafemanagement.service.CafeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -59,6 +56,13 @@ public class MainController {
         List<CafeDto> cafes = cafeService.getAllCafes();
         model.addAttribute("cafes", cafes);
         return "favorites";
+    }
+
+    @GetMapping("/find-store")
+    public String renderFindStorePage(Model model) {
+        List<CategoryDto> categories = cafeService.getAllCategories();
+        model.addAttribute("categories", categories); // Send categories to the page for dropdown
+        return "find-store"; // Thymeleaf template for the find-store page
     }
 
     // SearchRequest DTO 클래스
