@@ -1,9 +1,7 @@
 package com.example.cafemanagement.controller;
 
 import com.example.cafemanagement.dto.CafeDto;
-import com.example.cafemanagement.dto.LocationDto;
-import com.example.cafemanagement.dto.MenuDto;
-import com.example.cafemanagement.dto.ReviewDto;
+import com.example.cafemanagement.dto.CategoryDto;
 import com.example.cafemanagement.service.CafeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -61,6 +59,12 @@ public class MainController {
         return "favorites";
     }
 
+    @GetMapping("/find-store")
+    public String renderFindStorePage(Model model) {
+        List<CategoryDto> categories = cafeService.getAllCategories();
+        model.addAttribute("categories", categories);
+        return "find-store";
+    }
     // SearchRequest DTO 클래스
     public static class SearchRequest {
         private String query;

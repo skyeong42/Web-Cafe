@@ -3,9 +3,9 @@ package com.example.cafemanagement.controller;
 import com.example.cafemanagement.dto.CafeDto;
 import com.example.cafemanagement.dto.CafeRequestDto;
 import com.example.cafemanagement.dto.CategoryDto;
+import com.example.cafemanagement.dto.KakaoCafeDto;
 import com.example.cafemanagement.dto.LocationDto;
 import com.example.cafemanagement.dto.MenuDto;
-import com.example.cafemanagement.dto.ReviewDto;
 import com.example.cafemanagement.dto.ReviewResponseDto;
 import com.example.cafemanagement.service.CafeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,13 +59,26 @@ public class CafeController {
             @ApiResponse(responseCode = "200", description = "검색 성공"),
             @ApiResponse(responseCode = "400", description = "유효하지 않은 검색 조건")
     })
-    public ResponseEntity<List<CafeDto>> searchCafes(
+    public ResponseEntity<List<CafeDto>> FilterCafes(
             @RequestParam(required = false) @Parameter(description = "검색 키워드") String keyword,
             @RequestParam(required = false) @Parameter(description = "카테고리 이름") String category,
-            @RequestParam(required = false) @Parameter(description = "해시태그 이름") String hashtag,
+            @RequestParam(required = false) @Parameter(description = "해시태그 이름") List<String> hashtag,
             @RequestParam(required = false) @Parameter(description = "최소 별점") Double minRating) {
-        List<CafeDto> cafes = cafeService.searchCafes(keyword, category, hashtag, minRating);
-        return ResponseEntity.ok(cafes);
+        try {
+            // Null 또는 빈 값 처리
+            category = (category != null && !category.isBlank()) ? category : null;
+            keyword = (keyword != null && !keyword.isBlank()) ? keyword : null;
+            hashtag = (hashtag != null && !hashtag.isEmpty()) ? hashtag : List.of();
+
+            // 서비스 호출 (내부 DB 필터링 전용)
+            List<CafeDto> filteredResults = cafeService.searchCafes(keyword, category, hashtag.toString(), minRating);
+
+            return ResponseEntity.ok(filteredResults);
+        } catch (Exception e) {
+            // 로깅은 시스템에 따라 변경 가능
+            System.err.println("Error in filterCafes: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/categories")
@@ -136,6 +150,23 @@ public class CafeController {
         return ResponseEntity.ok(cafes);
     }
 
+    @GetMapping("/kakao/search")
+    @Operation(summary = "카카오 지도 API로 카페 검색", description = "카카오 지도 API를 사용하여 카페 정보를 검색합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "카페 검색 성공"),
+            @ApiResponse(responseCode = "400", description = "유효하지 않은 요청")
+    })
+    public ResponseEntity<List<KakaoCafeDto>> searchCafesFromKakao(
+            @RequestParam @Parameter(description = "검색 키워드", required = true) String keyword) {
+        List<KakaoCafeDto> cafes = cafeService.searchCafes(keyword);
+        return ResponseEntity.ok(cafes);
+    }
+    // 매장찾기 페이지
+    @GetMapping("/find-store")
+    @Operation(summary = "Find Store Page", description = "Find store page rendering")
+    public String renderFindStorePage() {
+        return "find-store"; // Returns the Thymeleaf template for the find-store page
+    }
     @GetMapping("/{cafeId}/reviews")
     public ResponseEntity<List<ReviewResponseDto>> getCafeReviews(@PathVariable Long cafeId) {
         List<ReviewResponseDto> reviews = cafeService.getCafeReviews(cafeId);
@@ -146,6 +177,17 @@ public class CafeController {
     public ResponseEntity<List<MenuDto>> getCafeMenus(@PathVariable Long cafeId) {
         List<MenuDto> menus = cafeService.getCafeMenus(cafeId);
         return ResponseEntity.ok(menus);
+    }
+
+    @PostMapping("/save-search")
+    @Operation(summary = "Save Search Results", description = "Save search results for cafes")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Save success"),
+            @ApiResponse(responseCode = "400", description = "Invalid request data")
+    })
+    public ResponseEntity<Void> saveSearchResults(@RequestBody List<CafeDto> cafes) {
+        cafeService.saveSearchResults(cafes);
+        return ResponseEntity.ok().build();
     }
 
 }

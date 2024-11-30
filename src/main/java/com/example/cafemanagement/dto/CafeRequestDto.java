@@ -7,7 +7,7 @@ public class CafeRequestDto {
     private String description;
     private String category;
     private LocationDto location;
-    private List<HashtagDto> hashtags;
+    private List<String> hashtags;
     private List<MenuDto> menus;
 
     public String getCafeImageUrl() {
@@ -49,19 +49,23 @@ public class CafeRequestDto {
         this.location = location;
     }
 
-    public List<HashtagDto> getHashtags() {
+    public List<String> getHashtags() {
         return hashtags;
     }
 
-    public void setHashtags(List<HashtagDto> hashtags) {
-        this.hashtags = hashtags;
+    public void setMenus(List<MenuDto> menus) {
+        this.menus = menus;
     }
 
     public List<MenuDto> getMenus() {
         return menus;
     }
 
-    public void setMenus(List<MenuDto> menus) {
-        this.menus = menus;
+    public void setCafeImageUrl(String cafeImageUrl) {
+        this.cafeImageUrl = cafeImageUrl;
+    }
+
+    public void setHashtags(List<String> hashtags) {
+        this.hashtags = hashtags;
     }
 }

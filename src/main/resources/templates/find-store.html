@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Find Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+        }
+        .navbar-custom {
+            background-color: #8B4513;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        #main-container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+        #map {
+            width: 60%;
+            height: 100%;
+            background-color: #ddd;
+        }
+        #right-panel {
+            width: 40%;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            border-left: 1px solid #ddd;
+        }
+        .filter-bar {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .search-bar {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .search-results {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .cafe-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+        .cafe-item:hover {
+            background-color: #f1f1f1;
+        }
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .hashtag-container {
+            margin-top: 10px;
+        }
+        .hashtag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .hashtag {
+            display: inline-block;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 15px;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .hashtag.selected {
+            background-color: #8B4513;
+            color: white;
+            border-color: #8B4513;
+        }
+        .hashtag:hover {
+            background-color: #ddd;
+        }
+        .rating-container {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="navbar-custom">
+    <div>
+        <a href="/" class="text-white text-decoration-none">Caffong</a>
+    </div>
+    <div>
+        <a href="/logout" class="text-white text-decoration-none">로그아웃</a>
+    </div>
+</div>
+<div id="main-container">
+    <div id="map"></div>
+    <div id="right-panel">
+        <div class="filter-bar">
+            <select id="category-filter" class="form-select mb-2">
+                <option value="">카테고리 선택</option>
+                <option value="DessertCafe">디저트 카페</option>
+                <option value="LargeCafe">대형 카페</option>
+                <option value="StudyCafe">공부하기 좋은 카페</option>
+                <option value="AtmosphericCafe">분위기 좋은 카페</option>
+            </select>
+            <div class="hashtag-container mb-2">
+                <h6>해시태그 선택</h6>
+                <div class="hashtag-list">
+                    <span class="hashtag" data-tag="와이파이잘됨">#와이파이잘됨</span>
+                    <span class="hashtag" data-tag="청결함">#청결함</span>
+                    <span class="hashtag" data-tag="친절함">#친절함</span>
+                    <span class="hashtag" data-tag="조용함">#조용함</span>
+                    <span class="hashtag" data-tag="콘센트많음">#콘센트많음</span>
+                </div>
+            </div>
+            <div class="rating-container mb-2">
+                <h6>별점 선택</h6>
+                <select id="rating-filter" class="form-select">
+                    <option value="">별점 선택</option>
+                    <option value="5">5점</option>
+                    <option value="4">4점 이상</option>
+                    <option value="3">3점 이상</option>
+                    <option value="2">2점 이상</option>
+                    <option value="1">1점 이상</option>
+                </select>
+            </div>
+            <button id="filter-button" class="btn btn-primary btn-block mt-2">필터 적용</button>
+            <button id="reset-filters" class="btn btn-secondary btn-block mt-2">필터 초기화</button>
+        </div>
+        <div class="search-bar">
+            <input type="text" id="search-query" class="form-control" placeholder="카페 이름 검색">
+            <button id="search-button" class="btn btn-primary btn-block mt-2">검색</button>
+        </div>
+        <div class="search-results"></div>
+    </div>
+</div>
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=c1be6dbc09faa31e5316451aad20da0b&libraries=services"></script>
+<script>
+    // Kakao 지도 초기화
+    var mapContainer = document.getElementById('map');
+    var mapOption = {
+        center: new kakao.maps.LatLng(37.5665, 126.9780), // 서울 중심 좌표
+        level: 5
+    };
+    var map = new kakao.maps.Map(mapContainer, mapOption);
+    var markers = []; // 생성된 마커들을 관리하는 배열
+
+    // 마커 생성 함수
+    function createMarker(cafe) {
+        var position = new kakao.maps.LatLng(cafe.y, cafe.x);
+        var marker = new kakao.maps.Marker({
+            position: position,
+            map: map
+        });
+
+        // 마커 클릭 이벤트 추가
+        kakao.maps.event.addListener(marker, 'click', function () {
+            var tagName = cafe.placeName;
+            var address = cafe.addressName;
+            var phone = cafe.phone; // API 데이터에서 번호
+            var description = `번호: ${phone || '전화번호 없음'}`; // 번호를 설명처럼 전달
+
+            showCafeInfo(tagName, address, phone, description);
+
+            // 지도 중심 이동
+            map.setCenter(new kakao.maps.LatLng(cafe.y, cafe.x));
+        });
+
+
+        markers.push(marker); // 마커 배열에 저장
+    }
+
+
+    // 마커 제거 함수
+    function clearMarkers() {
+        console.log(markers)
+        markers.forEach(marker => marker.setMap(null));
+        markers = [];
+    }
+
+    // 검색 결과와 마커를 업데이트하는 함수
+    function updateCafeListAndMap(cafes) {
+        var searchResults = document.querySelector('.search-results');
+        if (!searchResults) {
+            console.error("검색 결과를 표시할 요소(.search-results)가 없습니다.");
+            return;
+        }
+
+        // 기존 결과와 마커 초기화
+        searchResults.innerHTML = '';
+        console.log(markers)
+        clearMarkers();
+
+        if (!cafes || cafes.length === 0) {
+            searchResults.innerHTML = '<div class="no-results">검색 결과가 없습니다.</div>';
+            return;
+        }
+
+        cafes.forEach(cafe => {
+            if (!cafe || !cafe.location) {
+                console.error("잘못된 카페 데이터:", cafe);
+                return;
+            }
+
+            // 내부 DB 데이터 렌더링
+            renderInternalCafe(cafe, searchResults);
+        });
+    }
+
+    function renderInternalCafe(cafe, searchResults) {
+        var cafeItem = document.createElement('div');
+        cafeItem.className = 'cafe-item';
+        cafeItem.innerHTML = `
+        <div>
+            <strong>${cafe.cafeName}</strong><br>
+            <span>${cafe.location.address}</span><br>
+            <span>${cafe.rating}점</span>
+        </div>
+    `;
+        searchResults.appendChild(cafeItem);
+
+        createMarker({
+            latitude: cafe.location.latitude,
+            longitude: cafe.location.longitude,
+            tagName: cafe.cafeName,
+            address: cafe.location.address
+        });
+    }
+
+
+    // 필터 및 검색 이벤트 등록
+    document.addEventListener('DOMContentLoaded', function () {
+        var cafeItems = document.querySelectorAll('.cafe-item');
+
+        // 카페 리스트 아이템 클릭 이벤트 등록(수정)
+        cafeItems.forEach(function (item, index) {
+            item.addEventListener('click', function () {
+                var cafe = cafes[index];
+                var tagName = cafe.cafeName;
+                var address = cafe.location.address;
+                var phone = '전화번호 없음'; // 내부 DB는 기본값 없음
+                var description = cafe.description;
+                console.log(tagName, address, description);
+
+                showCafeInfo(tagName, address, phone, description);
+
+                // 맵의 해당 카페 위치로 이동
+                var lat = cafe.location.latitude;
+                var lng = cafe.location.longitude;
+                var moveLatLon = new kakao.maps.LatLng(lat, lng);
+                map.setCenter(moveLatLon);
+                map.setLevel(5); // 필요에 따라 레벨 조정
+            });
+        });
+
+        // 마커 추가 및 클릭 이벤트 등록
+        cafes.forEach(function (cafe, index) {
+            var markerPosition = new kakao.maps.LatLng(cafe.location.latitude, cafe.location.longitude);
+
+            // 마커 이미지 설정 (빨간색 마커)
+            var marker = new kakao.maps.Marker({
+                map: map,
+                position: markerPosition,
+                image: new kakao.maps.MarkerImage(
+                    'http://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
+                    new kakao.maps.Size(24, 35),
+                    {offset: new kakao.maps.Point(12, 35)}
+                )
+            });
+
+            // 마커 위 정보창
+            var infoWindow = new kakao.maps.InfoWindow({
+                content: `<div style="padding:5px;">${cafe.cafeName}</div>`
+            });
+
+            // 마커 마우스오버 시 정보창 열기
+            kakao.maps.event.addListener(marker, 'mouseover', function () {
+                infoWindow.open(map, marker);
+            });
+
+            // 마커 마우스아웃 시 정보창 닫기
+            kakao.maps.event.addListener(marker, 'mouseout', function () {
+                infoWindow.close();
+            });
+
+            // 마커 클릭 시 카페 정보 표시
+            kakao.maps.event.addListener(marker, 'click', function () {
+                var tagName = cafe.cafeName;
+                var address = cafe.location.address;
+                var description = cafe.description;
+                console.log(tagName, address, description);
+                showCafeInfo(tagName, address, description);
+
+                // 해당 카페 리스트 아이템으로 스크롤 및 강조
+                var cafeItem = document.querySelectorAll('.cafe-item')[index];
+                if (cafeItem) {
+                    cafeItem.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    // 기존 active 클래스 제거
+                    cafeItems.forEach(function (item) {
+                        item.classList.remove('active');
+                    });
+                    // 클릭된 아이템에 active 클래스 추가
+                    cafeItem.classList.add('active');
+                }
+            });
+        });
+    });
+
+
+
+    fetch(`/cafes/filters?category=${encodeURIComponent(category || '')}&hashtag=${encodeURIComponent(hashtags.join(','))}&minRating=${minRating || ''}&keyword=${encodeURIComponent(query || '')}`)
+        .then(response => {
+            if (!response.ok) throw new Error(`API 요청 실패: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            if (Array.isArray(data)) {
+                updateCafeListAndMap(data);
+            } else {
+                console.error("API 응답 데이터가 배열이 아닙니다:", data);
+            }
+        })
+        .catch(error => {
+            console.error("필터 API 호출 오류:", error);
+        });
+
+
+</script>
+
+</body>
+</html>

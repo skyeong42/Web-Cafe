@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Caffong - 메인</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+        html, body, div, span, applet, object, iframe,
+        h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+        a, abbr, acronym, address, big, cite, code,
+        del, dfn, em, img, ins, kbd, q, s, samp,
+        small, strike, strong, sub, sup, tt, var,
+        b, u, i, center,
+        dl, dt, dd, ol, ul, li,
+        fieldset, form, label, legend,
+        table, caption, tbody, tfoot, thead, tr, th, td,
+        article, aside, canvas, details, embed,
+        figure, figcaption, footer, header, hgroup,
+        menu, nav, output, ruby, section, summary,
+        time, mark, audio, video {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+        }
+        /* HTML5 display-role reset for older browsers */
+        article, aside, details, figcaption, figure,
+        footer, header, hgroup, menu, nav, section {
+            display: block;
+        }
+        body {
+            line-height: 1;
+        }
+        ol, ul {
+            list-style: none;
+        }
+        blockquote, q {
+            quotes: none;
+        }
+        blockquote:before, blockquote:after,
+        q:before, q:after {
+            content: '';
+            content: none;
+        }
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+        /* 전체 페이지 스타일 */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        /* 네비게이션 바 스타일 */
+        .navbar-custom {
+            background-color: #8B4513; /* 갈색 */
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+        }
+
+        .navbar-left, .navbar-center, .navbar-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-left img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .navbar-left .brand {
+            color: #fff;
+            font-size: 1.5em;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .navbar-center {
+            gap: 20px;
+        }
+
+        .navbar-center .nav-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+
+        .navbar-center .nav-button img {
+            height: 24px;
+            margin-bottom: 5px;
+        }
+
+        .navbar-center .nav-button:hover {
+            color: #FFD700; /* 호버 시 노란색 */
+        }
+
+        .navbar-right a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1em;
+            margin-left: 20px;
+        }
+
+        .navbar-right a:hover {
+            color: #FFD700; /* 호버 시 노란색 */
+        }
+
+        /* 메인 컨테이너 스타일 */
+        #main-container {
+            display: flex;
+            height: calc(100vh - 60px); /* 네비게이션 바 높이 보정 */
+        }
+
+        /* 지도 영역 스타일 */
+        #map {
+            width: 60%;
+            height: 100%;
+            background-color: #ddd; /* 임시 배경색 */
+            position: relative;
+        }
+
+        /* 오른쪽 패널 스타일 */
+        #right-panel {
+            width: 40%;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            border-left: 1px solid #ddd;
+        }
+
+        /* Split the right-panel into two vertical sections */
+        #right-panel-inner {
+            display: flex;
+            flex: 1;
+        }
+
+        /* 왼쪽 섹션: 검색 창과 서브 네비게이션 바 */
+        #right-panel-left {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #ddd;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* 오른쪽 섹션: 카페 검색 화면 */
+        #right-panel-right {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            max-height: 100vh;
+            height: calc(100% - 60px);
+        }
+
+        /* 검색 창 스타일 */
+        .search-bar {
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .search-bar button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #8B4513;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        #cafe-search .search-bar button:hover {
+            background-color: #a0522d;
+        }
+
+        /* 서브 네비게이션 바 스타일 */
+        .sub-navbar {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .sub-navbar a {
+            color: #333;
+            text-decoration: none;
+            font-size: 1em;
+            padding: 5px 10px;
+        }
+
+        .sub-navbar a:hover {
+            background-color: #e2e6ea;
+            border-radius: 4px;
+        }
+
+        /* 카페 검색 화면 스타일 */
+        #cafe-search {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* 카페 리스트 스타일 */
+        .cafe-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .cafe-item:hover {
+            background-color: #f1f1f1;
+        }
+
+        .cafe-item.active {
+            background-color: #e9ecef;
+        }
+
+        .cafe-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+
+        .cafe-item .info {
+            flex: 1;
+        }
+
+        .cafe-item .info strong {
+            display: block;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .cafe-item .info span {
+            display: block;
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* 카페 정보 표시 영역 스타일 */
+        #cafe-info {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            margin-top: 20px;
+            display: none;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            #main-container {
+                flex-direction: column;
+            }
+
+            #map, #right-panel {
+                width: 100%;
+                height: 50vh;
+                border-left: none;
+                border-bottom: 1px solid #ddd;
+            }
+
+            /* Adjust right-panel-inner for small screens */
+            #right-panel-inner {
+                flex-direction: column;
+            }
+
+            #right-panel-left, #right-panel-right {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- 네비게이션 바 -->
+<div class="navbar-custom">
+    <div class="navbar-left">
+        <img src="/images/cafe.png" alt="Cafe Icon">
+        <a href="/" class="brand">Caffong</a>
+    </div>
+    <div class="navbar-center">
+        <a href="/favorites" class="nav-button">
+            <img src="/images/favorites.png" alt="즐겨찾기">
+            즐겨찾기
+        </a>
+        <a href="/mypage" class="nav-button">
+            <img src="/images/mypage.png" alt="마이페이지">
+            마이페이지
+        </a>
+        <a href="/find-store" class="nav-button">
+            <img src="/images/find_store.png" alt="매장찾기">
+            매장찾기
+        </a>
+        <a href="/user-search" class="nav-button">
+            <img src="/images/user_search.png" alt="사용자 검색">
+            사용자 검색
+        </a>
+        <a href="/friends" class="nav-button">
+            <img src="/images/friends.png" alt="친구">
+            친구
+        </a>
+        <a href="/calendar" class="nav-button">
+            <img src="/images/calendar.png" alt="캘린더">
+            캘린더
+        </a>
+    </div>
+    <div class="navbar-right">
+        <a href="/logout">로그아웃</a>
+    </div>
+</div>
+
+<!-- 메인 컨테이너 -->
+<div id="main-container">
+    <!-- 지도 -->
+    <div id="map">
+        <p style="text-align: center; padding-top: 20px;">지도 영역 (카카오 맵을 여기에 표시)</p>
+    </div>
+
+    <!-- 오른쪽 패널 -->
+    <div id="right-panel">
+        <div id="right-panel-inner">
+            <!-- 왼쪽 섹션: 검색 창과 서브 네비게이션 바 -->
+            <div id="right-panel-left">
+                <!-- 검색 창 -->
+                <div class="search-bar">
+                    <input type="text" id="search-query" placeholder="카페 이름을 검색하세요">
+                    <button id="search-button" class="btn btn-primary btn-block mt-2">검색</button>
+                </div>
+
+                <!-- 서브 네비게이션 바 -->
+                <div class="sub-navbar">
+                    <a href="/info">정보</a>
+                    <a href="/menu">메뉴</a>
+                    <a href="/reviews">리뷰</a>
+                    <a href="/photos">사진</a>
+                    <a href="/reservations">예약</a>
+                </div>
+
+                <!-- 카페 정보 표시 영역 추가 -->
+                <div id="cafe-info">
+                    <h5 id="cafe-name">카페 이름</h5>
+                    <p><strong>주소:</strong> <span id="cafe-address"></span></p>
+                    <p><strong>설명:</strong> <span id="cafe-description"></span></p>
+                </div>
+            </div>
+
+            <!-- 오른쪽 섹션: 카페 검색 화면 -->
+            <div id="right-panel-right">
+                <!-- 카페 검색 화면 -->
+                <div id="cafe-search">
+                    <!-- 검색 결과 -->
+                    <div class="search-results">
+                        <h5>전체 카페 목록</h5>
+                        <div th:each="cafe : ${cafes}"
+                             class="cafe-item"
+                             data-name="${cafe.cafeName}"
+                             data-address="${cafe.location.address}"
+                             data-description="${cafe.description}">
+                            <img th:src="${cafe.imageUrl != null} ? ${cafe.imageUrl} : '@{/images/default_cafe.png}'" alt="카페 이미지">
+                            <div class="info">
+                                <strong th:text="${cafe.cafeName}">카페 이름</strong>
+                                <span th:text="'평점: ' + ${cafe.rating}">평점</span>
+                                <span th:text="${cafe.location.address}">주소</span>
+                                <span th:text="${cafe.description}">설명</span>
+                                <span th:text="${cafe.category}">카테고리</span>
+                                <button th:attr="id=${cafe.cafeId}" class="favorite-btn">
+                                    <i class="fa-regular fa-star"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 스크립트 -->
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=c1be6dbc09faa31e5316451aad20da0b&libraries=services"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var cafes = /*[[${cafes}]]*/ '[]'; // 서버에서 전달된 카페 데이터 (JSON 형식으로 전달됨)
+
+    // 카카오 맵 초기화
+    var mapContainer = document.getElementById('map');
+    var mapOption = {
+        center: new kakao.maps.LatLng(37.5665, 126.9780), // 서울 시청 좌표
+        level: 5 // 확대 레벨
+    };
+
+    var map = new kakao.maps.Map(mapContainer, mapOption);
+
+    // 카페 정보 표시 함수
+    function showCafeInfo(name, address, description) {
+        console.log({name, address, description})
+        document.getElementById('cafe-name').textContent = name;
+        document.getElementById('cafe-address').textContent = address;
+        document.getElementById('cafe-description').textContent = description;
+        document.getElementById('cafe-info').style.display = 'block';
+    }
+
+    // DOMContentLoaded 이벤트를 사용하여 DOM이 완전히 로드된 후에 실행
+    document.addEventListener('DOMContentLoaded', function() {
+        var cafeItems = document.querySelectorAll('.cafe-item');
+
+        // 카페 리스트 아이템 클릭 이벤트 등록
+        cafeItems.forEach(function(item, index) {
+            item.addEventListener('click', function() {
+                var cafe = cafes[index];
+
+                var name = cafe.cafeName;
+                var address = cafe.location.address;
+                var description = cafe.description;
+                console.log(name, address, description);
+                showCafeInfo(name, address, description);
+
+                // 맵의 해당 카페 위치로 이동
+                var lat = cafe.location.latitude;
+                var lng = cafe.location.longitude;
+                var moveLatLon = new kakao.maps.LatLng(lat, lng);
+                map.setCenter(moveLatLon);
+                map.setLevel(5); // 필요에 따라 레벨 조정
+            });
+        });
+
+        // 마커 추가 및 클릭 이벤트 등록
+        cafes.forEach(function(cafe, index) {
+            var markerPosition = new kakao.maps.LatLng(cafe.location.latitude, cafe.location.longitude);
+
+            // 마커 이미지 설정 (빨간색 마커)
+            var marker = new kakao.maps.Marker({
+                map: map,
+                position: markerPosition,
+                image: new kakao.maps.MarkerImage(
+                    'http://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
+                    new kakao.maps.Size(24, 35),
+                    { offset: new kakao.maps.Point(12, 35) }
+                )
+            });
+
+            // 마커 위 정보창
+            var infoWindow = new kakao.maps.InfoWindow({
+                content: `<div style="padding:5px;">${cafe.cafeName}</div>`
+            });
+
+            // 마커 마우스오버 시 정보창 열기
+            kakao.maps.event.addListener(marker, 'mouseover', function () {
+                infoWindow.open(map, marker);
+            });
+
+            // 마커 마우스아웃 시 정보창 닫기
+            kakao.maps.event.addListener(marker, 'mouseout', function () {
+                infoWindow.close();
+            });
+
+            // 마커 클릭 시 카페 정보 표시
+            kakao.maps.event.addListener(marker, 'click', function () {
+                var name = cafe.cafeName;
+                var address = cafe.location.address;
+                var description = cafe.description;
+                console.log(name, address, description);
+                showCafeInfo(name, address, description);
+
+                // 해당 카페 리스트 아이템으로 스크롤 및 강조
+                var cafeItem = document.querySelectorAll('.cafe-item')[index];
+                if (cafeItem) {
+                    cafeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // 기존 active 클래스 제거
+                    cafeItems.forEach(function(item) { item.classList.remove('active'); });
+                    // 클릭된 아이템에 active 클래스 추가
+                    cafeItem.classList.add('active');
+                }
+            });
+        });
+    });
+
+    // 검색 버튼 클릭 이벤트
+    document.getElementById('search-button').addEventListener('click', function() {
+        var query = document.getElementById('search-query').value;
+        if (query.trim() !== "") {
+            // 실제 검색 로직을 여기에 추가
+            alert("검색어: " + query);
+        } else {
+            alert("검색어를 입력해주세요.");
+        }
+    });
+
+    <!-- JavaScript -->
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // 모든 favorite 버튼 선택
+        const favoriteButtons = document.querySelectorAll('.favorite-btn');
+
+        // 각 버튼에 클릭 이벤트 추가
+        favoriteButtons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                this.classList.toggle('active'); // 'active' 클래스 추가/제거
+                const icon = this.querySelector('i');
+
+                if (this.classList.contains('active')) {
+                    // 즐겨찾기 상태
+                    icon.classList.remove('fa-regular'); // 빈 별
+                    icon.classList.add('fa-solid'); // 꽉 찬 별
+                } else {
+                    // 기본 상태
+                    icon.classList.remove('fa-solid'); // 꽉 찬 별
+                    icon.classList.add('fa-regular'); // 빈 별
+                }
+
+                // 버튼의 고유 cafeId를 가져오기
+                const cafeId = this.getAttribute('id');
+                console.log(`Button clicked for cafeId: ${cafeId}`);
+            });
+        });
+    });
+
+    /*]]>*/
+</script>
+<script src="https://kit.fontawesome.com/9ef9a8c9bd.js" crossorigin="anonymous"></script>
+</body>
+</html>

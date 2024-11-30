@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.coyote.BadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,8 +50,14 @@ public class UserService {
     }
 
     private void validateRegistration(UserSaveRequestDto request) {
+        if (request.getPassword().length() < 8) {
+            throw new IllegalArgumentException("비밀번호는 12자 이상 20자 이하로 입력해야 합니다.");
+        }
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
+        }
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("이미 등록된 이메일입니다.");
         }
         if (!validatePasswordStrength(request.getPassword())) {
             throw new IllegalArgumentException("비밀번호는 영문자, 숫자, 특수문자를 포함해야 합니다.");
@@ -67,7 +74,7 @@ public class UserService {
 
     public boolean validatePasswordStrength(String password) {
         // 비밀번호가 영문자, 숫자, 특수문자를 포함하는지 정규식을 사용하여 검증
-        return password.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&+=]).{8,}$");
+        return password.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&+=]).{12,20}$");
     }
 
     public boolean validatePasswordMatch(String password, String confirmPassword) {

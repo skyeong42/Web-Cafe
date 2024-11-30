@@ -33,6 +33,14 @@ public class Cafe extends BaseTimeEntity {
 
     private String cafeImageUrl;
 
+    @ManyToMany(cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "cafe_hashtags",
+            joinColumns = @JoinColumn(name = "cafe_id"),
+            inverseJoinColumns = @JoinColumn(name = "hashtag_id")
+    )
+
+    private Set<Hashtag> hashtags = new HashSet<>();// 해시태그 관계(수정)
 
     @OneToMany(mappedBy = "cafe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Menu> menus = new ArrayList<>(); // 카페 메뉴 리스트
@@ -60,13 +68,14 @@ public class Cafe extends BaseTimeEntity {
     private List<Review> reviews = new ArrayList<>(); // 카페 메뉴 리스트
 
     // 생성자 변경
-    public Cafe(String cafeName, Location location, double rating, String description, String cafeImageUrl, Category category) {
+    public Cafe(String cafeName, Location location, double rating, String description, String cafeImageUrl, Category category, Set<Hashtag> hashtags) {
         this.cafeName = cafeName;
         this.location = location;
         this.rating = rating;
         this.description = description;
         this.cafeImageUrl = cafeImageUrl;
         this.category = category;
+        this.hashtags = hashtags;
     }
 
     // Getter 추가
@@ -137,5 +146,14 @@ public class Cafe extends BaseTimeEntity {
 
     public Category getCategory() {
         return category;
+    }
+
+    // Getter/Setter
+    public Set<Hashtag> getHashtags() {
+        return hashtags;
+    }
+
+    public void addHashtag(Hashtag hashtag) {
+        this.hashtags.add(hashtag);
     }
 }

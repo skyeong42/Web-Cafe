@@ -317,6 +317,21 @@
                 border-bottom: 1px solid #ddd;
             }
         }
+
+
+        /* 검색 결과가 없을때*/
+
+        .no-results {
+
+            text-align: center;
+
+            padding: 20px;
+
+            color: #666;
+
+            font-size: 16px;
+
+        }
     </style>
 
     <style>
@@ -384,7 +399,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .menu-name {
+        .menu-tagName {
             font-size: 1.2em;
             font-weight: bold;
             color: #333;
@@ -517,7 +532,7 @@
                         <div th:each="cafe : ${cafes}"
                              class="cafe-item"
                              data-id="${cafe.cafeId}"
-                             data-name="${cafe.cafeName}"
+                             data-tagName="${cafe.cafeName}"
                              data-address="${cafe.location.address}"
                              data-description="${cafe.description}"
                              data-menus="${cafe.menus}">
@@ -553,14 +568,16 @@
     };
 
     var map = new kakao.maps.Map(mapContainer, mapOption);
+    var markers = []; // 지도에 표시된 마커를 저장 (추가)
 
     var selectedCafe = null; // 현재 선택된 카페
 
     // 카페 정보 표시 함수
-    function showCafeInfo(name, address, description) {
+    function showCafeInfo(tagName, address, phone, description) {
         cafeDetails.innerHTML = `
-        <h5>${name}</h5>
+        <h5>${tagName}</h5>
         <p><strong>주소:</strong> ${address}</p>
+        <p><strong>번호:</strong> ${phone}</p>
         <p><strong>설명:</strong> ${description}</p>
     `;
         cafeDetails.style.display = 'block';
@@ -688,20 +705,23 @@
             item.addEventListener('click', function() {
                 var cafe = cafes[index];
                 var cafeId = cafe.cafeId;
-                var name = cafe.cafeName;
+                var tagName = cafe.cafeName;
                 var address = cafe.location.address;
                 var description = cafe.description;
                 var menus = cafe.menus;
+                var phone = '전화번호 없음'; // 내부 DB는 기본값 없음
 
                 selectedCafe = {
                     cafeId: cafeId,
-                    name: name,
+                    tagName: tagName,
                     address: address,
+                    phone: phone,
                     description: description,
                     menus: menus
                 };
-                console.log(name, address, description);
-                showCafeInfo(name, address, description);
+                console.log(tagName, address, description);
+                showCafeInfo(tagName, address, phone, description);
+
 
                 // 맵의 해당 카페 위치로 이동
                 var lat = cafe.location.latitude;
@@ -715,7 +735,7 @@
         document.getElementById('info-link').addEventListener('click', function(event) {
             event.preventDefault();
             if (selectedCafe) {
-                showCafeInfo(selectedCafe.name, selectedCafe.address, selectedCafe.description);
+                showCafeInfo(selectedCafe.tagName, selectedCafe.address, selectedCafe.phone, selectedCafe.description);
             } else {
                 alert("먼저 카페를 선택해주세요.");
             }
@@ -762,19 +782,19 @@
 
             // 마커 클릭 시 카페 정보 표시
             kakao.maps.event.addListener(marker, 'click', function () {
-                var name = cafe.cafeName;
+                var tagName = cafe.cafeName;
                 var address = cafe.location.address;
                 var description = cafe.description;
                 var menus = cafe.menus;
 
                 selectedCafe = {
-                    name: name,
+                    tagName: tagName,
                     address: address,
                     description: description,
                     menus: menus,
                     cafeId: cafe.cafeId, // 추가
                 };
-                showCafeInfo(name, address, description);
+                showCafeInfo(tagName, address, description);
 
                 // 해당 카페 리스트 아이템으로 스크롤 및 강조
                 var cafeItem = document.querySelectorAll('.cafe-item')[index];
@@ -790,14 +810,34 @@
     });
 
     // 검색 버튼 클릭 이벤트
-    document.getElementById('search-button').addEventListener('click', function() {
-        var query = document.getElementById('search-query').value;
-        if (query.trim() !== "") {
-            // 실제 검색 로직을 여기에 추가
-            alert("검색어: " + query);
-        } else {
-            alert("검색어를 입력해주세요.");
+    document.getElementById('search-button').addEventListener('click', function () {
+        var query = document.getElementById('search-query').value.trim();
+
+        if (!query) {
+            alert('검색어를 입력해주세요.');
+            return;
         }
+
+        // 검색 요청 URL
+        var url = `/cafes/kakao/search?keyword=${encodeURIComponent(query)}`;
+
+        // API 호출
+        fetch(url)
+            .then(response => {
+                if (!response.ok) throw new Error('검색 요청 실패');
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.length > 0) {
+                    updateCafeListAndMap(data); // 검색 결과 업데이트
+                } else {
+                    alert('검색 결과가 없습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('API 호출 중 오류 발생:', error);
+                // alert('검색 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
+            });
     });
 
     function showCafeReviews(reviews) {
@@ -847,7 +887,7 @@
         menus.forEach(function(menu) {
             menuList += `
             <div class="menu-item">
-                <div class="menu-name">${menu.name}</div>
+                <div class="menu-tagName">${menu.name}</div>
                 <div class="menu-price">${menu.price.toLocaleString()}₩</div>
             </div>
         `;
@@ -863,7 +903,7 @@
     cafeItems.forEach(function(item, index) {
         item.addEventListener('click', function() {
             var cafe = cafes[index];
-            var name = cafe.cafeName;
+            var tagName = cafe.cafeName;
             var address = cafe.location.address;
             var description = cafe.description;
             var menus = cafe.menus;
@@ -871,16 +911,131 @@
 
             selectedCafe = {
                 cafeId: cafe.cafeId, // 필요한 경우 추가
-                name: name,
+                tagName: tagName,
                 address: address,
                 description: description,
                 menus: menus,
                 reviews: reviews // 리뷰 추가
             };
-            showCafeInfo(name, address, description);
+            showCafeInfo(tagName, address, description);
             // ... 나머지 코드
         });
     });
+    // 기존 마커 제거 함수
+    function clearMarkers() {
+        console.log({markers})
+        markers.forEach(marker => marker.setMap(null));
+        markers = [];
+    }
+
+    // 검색 결과 및 맵 업데이트
+    function updateCafeListAndMap(cafes) {
+        var searchResults = document.querySelector('.search-results');
+        if (!searchResults) {
+            console.error('검색 결과 컨테이너를 찾을 수 없습니다.');
+            return;
+        }
+
+        searchResults.innerHTML = ''; // 기존 리스트 초기화
+        clearMarkers(); // 기존 마커 초기화
+
+        if (cafes.length === 0) {
+            // 검색 결과가 없을 경우 메시지 표시
+            var noResultMessage = document.createElement('div');
+            noResultMessage.className = 'no-results';
+            noResultMessage.textContent = '검색 결과가 없습니다.';
+            noResultMessage.style.textAlign = 'center';
+            noResultMessage.style.padding = '20px';
+            noResultMessage.style.color = '#666';
+            noResultMessage.style.fontSize = '16px';
+            searchResults.appendChild(noResultMessage);
+            return; // 더 이상의 작업은 필요 없음
+        }
+
+        // 검색 결과가 있을 경우 리스트와 마커 추가
+        cafes.forEach(function (cafe) {
+            var cafeItem = document.createElement('div');
+            cafeItem.className = 'cafe-item';
+            cafeItem.setAttribute('data-tagName', cafe.placeName);
+            cafeItem.setAttribute('data-address', cafe.addressName);
+            cafeItem.setAttribute('data-description', cafe.phone || '전화번호 없음');
+
+            cafeItem.innerHTML = `
+            <img src="${cafe.imageUrl || '/images/default_cafe.png'}" alt="카페 이미지" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-right: 10px;">
+            <div class="info">
+                <strong>${cafe.placeName}</strong><br>
+                <span>${cafe.addressName}</span><br>
+                <span>${cafe.phone || '전화번호 없음'}</span>
+            </div>
+        `;
+
+            // 리스트 아이템 클릭 시 맵 이동 및 정보 표시
+            cafeItem.addEventListener('click', function () {
+                showCafeInfo(cafe.placeName, cafe.addressName, cafe.phone || '전화번호 없음');
+                map.setCenter(new kakao.maps.LatLng(cafe.y, cafe.x));
+            });
+
+            searchResults.appendChild(cafeItem); // 검색 결과 추가
+            createMarker(cafe); // 마커 추가
+        });
+    }
+    function createMarker(cafe) {
+        var position = new kakao.maps.LatLng(cafe.y, cafe.x);
+        var marker = new kakao.maps.Marker({
+            position: position,
+            map: map
+        });
+
+        // 마커 클릭 이벤트 추가
+        kakao.maps.event.addListener(marker, 'click', function () {
+            var tagName = cafe.placeName;
+            var address = cafe.addressName;
+            var phone = cafe.phone; // API 데이터에서 번호
+            var description = `번호: ${phone || '전화번호 없음'}`; // 번호를 설명처럼 전달
+
+            showCafeInfo(tagName, address, phone, description);
+
+            // 지도 중심 이동
+            map.setCenter(new kakao.maps.LatLng(cafe.y, cafe.x));
+        });
+
+
+        markers.push(marker); // 마커 배열에 저장
+    }
+
+
+    // 검색 버튼 클릭 이벤트
+    document.getElementById('search-button').addEventListener('click', function () {
+        var query = document.getElementById('search-query').value.trim();
+
+        if (!query) {
+            alert('검색어를 입력해주세요.');
+            return;
+        }
+
+        // 검색 요청 URL
+        var url = `/cafes/kakao/search?keyword=${encodeURIComponent(query)}`;
+
+        // API 호출
+        fetch(url)
+            .then(response => {
+                if (!response.ok) throw new Error('검색 요청 실패');
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.length > 0) {
+                    console.log({data})
+                    updateCafeListAndMap(data); // 검색 결과 업데이트
+                } else {
+                    alert('검색 결과가 없습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('API 호출 중 오류 발생:', error);
+                // alert('검색 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
+            });
+    });
+
 
     /*]]>*/
 </script>
