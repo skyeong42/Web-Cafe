@@ -62,7 +62,7 @@ public class UserController {
 
     // 로그인 처리
     @PostMapping("/login")
-    public String loginUser(LoginDto loginDto, BindingResult result, HttpServletResponse response) {
+    public String loginUser(Model model, LoginDto loginDto, BindingResult result, HttpServletResponse response) {
         if (result.hasErrors()) {
             return "login";
         }
@@ -79,6 +79,7 @@ public class UserController {
 
             return "redirect:/";
         } catch (IllegalArgumentException e) {
+            model.addAttribute("errorMessage", "아이디 또는 비밀번호가 잘못되었습니다.");
             return "login";
         }
     }
