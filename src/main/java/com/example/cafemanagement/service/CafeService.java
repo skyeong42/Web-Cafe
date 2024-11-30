@@ -159,6 +159,7 @@ public class CafeService {
         cafeRepository.save(cafe); // 변경된 관계 저장
     }
 
+    /**
     @Transactional(readOnly = true)
     public List<CafeDto> searchCafes(String keyword, String category, String hashtag, Double minRating) {
         Category categoryEntity = (category != null && !category.isBlank())
@@ -184,6 +185,34 @@ public class CafeService {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
+     */
+
+    public List<CafeDto> filterCafes(String category, List<String> hashtags, Double minRating, Double maxRating, String keyword) {
+        System.out.println("Filter Parameters:");
+        System.out.println("Category: " + category);
+        System.out.println("Hashtags: " + hashtags);
+        System.out.println("MinRating: " + minRating);
+        System.out.println("MaxRating: " + maxRating);
+        System.out.println("Keyword: " + keyword);
+
+        long hashtagCount = (hashtags != null && !hashtags.isEmpty()) ? hashtags.size() : 0;
+
+        List<Cafe> cafes = cafeRepository.findByFilters(
+                category,
+                minRating,
+                maxRating,
+                (keyword != null && !keyword.isEmpty()) ? keyword : null,
+                (hashtags != null && !hashtags.isEmpty()) ? hashtags : null,
+                hashtagCount
+        );
+
+        System.out.println("Filtered Results: " + cafes);
+        return cafes.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+
 
     @Transactional
     public void deleteCafe(Long cafeId) {
@@ -325,9 +354,11 @@ public class CafeService {
         return cafeList;
     }
 
+    /**
     // 내부 DB 데이터만 검색 및 필터링
     @Transactional(readOnly = true)
     public List<CafeDto> searchAndFilterCafes(String keyword, String category, List<String> hashtag, Double minRating) {
         return searchCafes(keyword, category, hashtag.toString(), minRating);
     }
+    */
 }
