@@ -1,6 +1,7 @@
 package com.example.cafemanagement.controller;
 
 import com.example.cafemanagement.dto.LoginDto;
+import com.example.cafemanagement.dto.UserProfileDetailsDto;
 import com.example.cafemanagement.dto.UserSaveRequestDto;
 import com.example.cafemanagement.service.UserService;
 
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.Authentication;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
@@ -84,4 +85,11 @@ public class UserController {
         }
     }
 
+    @GetMapping("/mypage")
+    public String showMyPage(Model model, Authentication authentication) {
+        String username = authentication.getName();
+        UserProfileDetailsDto userProfile = userService.getUserProfileWithDetails(username);
+        model.addAttribute("userProfile", userProfile);
+        return "mypage"; // Thymeleaf 템플릿 이름
+    }
 }

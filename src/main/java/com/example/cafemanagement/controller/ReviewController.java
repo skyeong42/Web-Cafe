@@ -56,6 +56,7 @@ public class ReviewController {
     public ResponseEntity<ReviewDto> editReview(
             @PathVariable Long reviewId,
             @RequestBody ReviewUpdateDto dto) {
+        System.out.println("testtest");
         ReviewDto updatedReview = reviewService.editReview(reviewId, dto);
         return ResponseEntity.ok(updatedReview);
     }

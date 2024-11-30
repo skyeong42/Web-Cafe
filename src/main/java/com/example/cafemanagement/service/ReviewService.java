@@ -65,10 +65,6 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
 
-        if (reviewUpdateDto.getContent().length() < 20) {
-            throw new IllegalArgumentException("리뷰는 최소 20자 이상이어야 합니다.");
-        }
-
         review.setTitle(reviewUpdateDto.getTitle());
         review.setContent(reviewUpdateDto.getContent());
         review.setRating(reviewUpdateDto.getRating());
@@ -86,8 +82,8 @@ public class ReviewService {
     public void deleteReview(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
-        updateCafeRating(review.getCafe());
         reviewRepository.delete(review);
+        updateCafeRating(review.getCafe());
     }
 
     /**

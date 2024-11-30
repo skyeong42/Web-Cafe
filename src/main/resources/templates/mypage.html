@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>마이페이지 - Caffong</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .navbar-custom {
+      background-color: #8B4513; /* 갈색 */
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+
+    .navbar-left, .navbar-center, .navbar-right {
+      display: flex;
+      align-items: center;
+    }
+
+    .navbar-left img {
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    .navbar-left .brand {
+      color: #fff;
+      font-size: 1.5em;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .navbar-center {
+      gap: 20px;
+    }
+
+    .navbar-center .nav-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.9em;
+      cursor: pointer;
+    }
+
+    .navbar-center .nav-button img {
+      height: 24px;
+      margin-bottom: 5px;
+    }
+
+    .navbar-center .nav-button:hover {
+      color: #FFD700; /* 호버 시 노란색 */
+    }
+
+    .navbar-right a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1em;
+      margin-left: 20px;
+    }
+
+    .navbar-right a:hover {
+      color: #FFD700; /* 호버 시 노란색 */
+    }
+    .profile-card {
+      max-width: 600px;
+      margin: 50px auto;
+    }
+    .profile-picture {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-bottom: 20px;
+    }
+    .profile-info {
+      text-align: center;
+    }
+    .profile-actions {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+<!-- GNB (Global Navigation Bar) -->
+<div class="navbar-custom">
+  <div class="navbar-left">
+    <img src="/images/cafe.png" alt="Cafe Icon">
+    <a href="/" class="brand">Caffong</a>
+  </div>
+  <div class="navbar-center">
+    <a href="/favorites" class="nav-button">
+      <img src="/images/favorites.png" alt="즐겨찾기">
+      즐겨찾기
+    </a>
+    <a href="/mypage" class="nav-button">
+      <img src="/images/mypage.png" alt="마이페이지">
+      마이페이지
+    </a>
+    <a href="/find-store" class="nav-button">
+      <img src="/images/find_store.png" alt="매장찾기">
+      매장찾기
+    </a>
+    <a href="/user-search" class="nav-button">
+      <img src="/images/user_search.png" alt="사용자 검색">
+      사용자 검색
+    </a>
+    <a href="/friends" class="nav-button">
+      <img src="/images/friends.png" alt="친구">
+      친구
+    </a>
+    <a href="/calendar" class="nav-button">
+      <img src="/images/calendar.png" alt="캘린더">
+      캘린더
+    </a>
+  </div>
+  <div class="navbar-right">
+    <!-- 로그인된 경우 -->
+    <div sec:authorize="isAuthenticated()">
+      <span>안녕하세요, <span sec:authentication="name"></span>님!</span>
+      <form th:action="@{/logout}" method="post" style="display:inline;">
+        <button type="submit" class="btn btn-outline-light ms-3">로그아웃</button>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<!-- 메인 컨테이너 -->
+<div class="container">
+  <!-- 사용자 프로필 카드 -->
+  <div class="profile-card card">
+    <div class="card-body">
+      <div class="profile-info">
+        <!-- 프로필 사진 -->
+        <img th:src="${userProfile.profilePicture != null} ? ${userProfile.profilePicture} : '/images/default_profile.png'"
+             alt="프로필 사진" class="profile-picture">
+        <!-- 닉네임 -->
+        <h3 th:text="${userProfile.nickname}">닉네임</h3>
+        <!-- 아이디 -->
+        <p><strong>아이디:</strong> <span th:text="${userProfile.username}">username</span></p>
+        <!-- 이메일 -->
+        <p><strong>이메일:</strong> <span th:text="${userProfile.email}">email@example.com</span></p>
+        <!-- 가입일 -->
+      </div>
+      <!-- 프로필 수정 및 로그아웃 버튼 -->
+      <div class="profile-actions text-center">
+        <a href="/edit-profile" class="btn btn-primary me-2">프로필 수정</a>
+        <a href="/logout" class="btn btn-secondary">로그아웃</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 내가 작성한 리뷰 -->
+  <div class="mt-5">
+    <h4>내가 작성한 리뷰</h4>
+    <div th:if="${userProfile.reviews.size() == 0}">
+      <p>작성한 리뷰가 없습니다.</p>
+    </div>
+    <div th:if="${userProfile.reviews.size() > 0}">
+      <div class="list-group">
+        <div th:each="review : ${userProfile.reviews}" class="list-group-item">
+          <h5 th:text="${review.title}">리뷰 제목</h5>
+          <p th:text="${review.content}">리뷰 내용</p>
+          <small th:text="'평점: ' + ${review.rating}">평점: 5</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS 포함 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
