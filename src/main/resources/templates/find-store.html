@@ -1,10 +1,70 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Find Store</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        .navbar-custom {
+      background-color: #8B4513; /* 갈색 */
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+
+    .navbar-left, .navbar-center, .navbar-right {
+      display: flex;
+      align-items: center;
+    }
+
+    .navbar-left img {
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    .navbar-left .brand {
+      color: #fff;
+      font-size: 1.5em;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .navbar-center {
+      gap: 20px;
+    }
+
+    .navbar-center .nav-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.9em;
+      cursor: pointer;
+    }
+
+    .navbar-center .nav-button img {
+      height: 24px;
+      margin-bottom: 5px;
+    }
+
+    .navbar-center .nav-button:hover {
+      color: #FFD700; /* 호버 시 노란색 */
+    }
+
+    .navbar-right a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1em;
+      margin-left: 20px;
+    }
+
+    .navbar-right a:hover {
+      color: #FFD700; /* 호버 시 노란색 */
+    }
+
         body {
             margin: 0;
             padding: 0;
@@ -93,17 +153,72 @@
         .rating-container {
             margin-top: 10px;
         }
+        // 버튼 스타일
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 5px; /* 버튼 사이 간격 */
+        }
+
+        #clear-search-button {
+            padding: 5px 10px;
+            border: none;
+            color: #8B4513; /* 버튼 색상 */
+            background-color: #f5f5f5;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        #clear-search-button:hover {
+            background-color: #ddd;
+        }
+
     </style>
 </head>
 <body>
+<!-- GNB (Global Navigation Bar) -->
 <div class="navbar-custom">
-    <div>
-        <a href="/" class="text-white text-decoration-none">Caffong</a>
+    <div class="navbar-left">
+        <img src="/images/cafe.png" alt="Cafe Icon">
+        <a href="/" class="brand">Caffong</a>
     </div>
-    <div>
-        <a href="/logout" class="text-white text-decoration-none">로그아웃</a>
+    <div class="navbar-center">
+        <a href="/favorites" class="nav-button">
+            <img src="/images/favorites.png" alt="즐겨찾기">
+            즐겨찾기
+        </a>
+        <a href="/mypage" class="nav-button">
+            <img src="/images/mypage.png" alt="마이페이지">
+            마이페이지
+        </a>
+        <a href="/find-store" class="nav-button">
+            <img src="/images/find_store.png" alt="매장찾기">
+            매장찾기
+        </a>
+        <a href="/user-search" class="nav-button">
+            <img src="/images/user_search.png" alt="사용자 검색">
+            사용자 검색
+        </a>
+        <a href="/friends" class="nav-button">
+            <img src="/images/friends.png" alt="친구">
+            친구
+        </a>
+        <a href="/calendar" class="nav-button">
+            <img src="/images/calendar.png" alt="캘린더">
+            캘린더
+        </a>
+    </div>
+    <div class="navbar-right">
+        <!-- 로그인된 경우 -->
+        <div sec:authorize="isAuthenticated()">
+            <span>안녕하세요, <span sec:authentication="name"></span>님!</span>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-outline-light ms-3">로그아웃</button>
+            </form>
+        </div>
     </div>
 </div>
+
 <div id="main-container">
     <div id="map"></div>
     <div id="right-panel">
@@ -141,203 +256,256 @@
         </div>
         <div class="search-bar">
             <input type="text" id="search-query" class="form-control" placeholder="카페 이름 검색">
-            <button id="search-button" class="btn btn-primary btn-block mt-2">검색</button>
+            <button id="search-button" class="btn btn-primary">검색</button>
+            <button id="clear-search-button" class="btn btn-light">x</button>
         </div>
         <div class="search-results"></div>
     </div>
 </div>
+
+<!-- 푸터 (추가) -->
+<footer th:replace="layout/footer :: footer"></footer>
+
 <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=c1be6dbc09faa31e5316451aad20da0b&libraries=services"></script>
 <script>
+    // 상태 관리
+    let state = {
+        category: null,
+        minRating: null,
+        maxRating: null,
+        hashtags: [],
+        keyword: null
+    };
+
     // Kakao 지도 초기화
-    var mapContainer = document.getElementById('map');
-    var mapOption = {
-        center: new kakao.maps.LatLng(37.5665, 126.9780), // 서울 중심 좌표
+    const mapContainer = document.getElementById('map');
+    const mapOption = {
+        center: new kakao.maps.LatLng(37.5665, 126.9780),
         level: 5
     };
-    var map = new kakao.maps.Map(mapContainer, mapOption);
-    var markers = []; // 생성된 마커들을 관리하는 배열
+    const map = new kakao.maps.Map(mapContainer, mapOption);
+    let markers = [];
 
     // 마커 생성 함수
     function createMarker(cafe) {
-        var position = new kakao.maps.LatLng(cafe.y, cafe.x);
-        var marker = new kakao.maps.Marker({
-            position: position,
-            map: map
+        const position = new kakao.maps.LatLng(cafe.location.latitude, cafe.location.longitude);
+        const marker = new kakao.maps.Marker({ position, map });
+
+        // 마커 클릭 이벤트
+        kakao.maps.event.addListener(marker, 'click', () => {
+            alert(`카페 이름: ${cafe.cafeName}`);
         });
 
-        // 마커 클릭 이벤트 추가
-        kakao.maps.event.addListener(marker, 'click', function () {
-            var tagName = cafe.placeName;
-            var address = cafe.addressName;
-            var phone = cafe.phone; // API 데이터에서 번호
-            var description = `번호: ${phone || '전화번호 없음'}`; // 번호를 설명처럼 전달
-
-            showCafeInfo(tagName, address, phone, description);
-
-            // 지도 중심 이동
-            map.setCenter(new kakao.maps.LatLng(cafe.y, cafe.x));
+        // 마커 마우스 오버 이벤트: 카페 이름 표시
+        const infoWindow = new kakao.maps.InfoWindow({
+            content: `<div style="padding:5px; font-size:12px;">${cafe.cafeName}</div>` // 문자열로 수정
         });
 
+        kakao.maps.event.addListener(marker, 'mouseover', () => {
+            infoWindow.open(map, marker); // 마우스 오버 시 정보창 표시
+        });
 
-        markers.push(marker); // 마커 배열에 저장
+        kakao.maps.event.addListener(marker, 'mouseout', () => {
+            infoWindow.close(); // 마우스 아웃 시 정보창 닫기
+        });
+
+        markers.push(marker);
     }
 
-
-    // 마커 제거 함수
+    // 마커 제거
     function clearMarkers() {
-        console.log(markers)
         markers.forEach(marker => marker.setMap(null));
         markers = [];
     }
 
-    // 검색 결과와 마커를 업데이트하는 함수
+    // 결과 업데이트
     function updateCafeListAndMap(cafes) {
-        var searchResults = document.querySelector('.search-results');
-        if (!searchResults) {
-            console.error("검색 결과를 표시할 요소(.search-results)가 없습니다.");
-            return;
-        }
+        const searchResults = document.querySelector('.search-results');
+        searchResults.innerHTML = ''; // 기존 결과 초기화
+        clearMarkers(); // 기존 마커 초기화
 
-        // 기존 결과와 마커 초기화
-        searchResults.innerHTML = '';
-        console.log(markers)
-        clearMarkers();
-
-        if (!cafes || cafes.length === 0) {
-            searchResults.innerHTML = '<div class="no-results">검색 결과가 없습니다.</div>';
+        if (!Array.isArray(cafes) || cafes.length === 0) {
+            searchResults.innerHTML = '<div class="no-results">결과가 없습니다.</div>';
             return;
         }
 
         cafes.forEach(cafe => {
-            if (!cafe || !cafe.location) {
-                console.error("잘못된 카페 데이터:", cafe);
-                return;
-            }
+            console.log("Cafe object:", cafe); //디버깅 (cafeid 필드 확인)
+            const cafeItem = document.createElement('div');
+            cafeItem.className = 'cafe-item';
+            cafeItem.innerHTML = `
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <img src="${cafe.imageUrl}" alt="${cafe.cafeName}" style="width: 100px; height: 100px; border-radius: 8px; margin-right: 15px;">
+                    <div>
+                        <strong>${cafe.cafeName}</strong><br>
+                        <span>${cafe.location.address}</span><br>
+                        <span>${cafe.rating}점</span><br>
+                        <button class="favorite-button btn btn-outline-primary btn-sm" data-cafe-id="${cafe.cafeId}" data-action="add">
+                            즐겨찾기 추가
+                        </button>
+                    </div>
+                </div>
+            `;
 
-            // 내부 DB 데이터 렌더링
-            renderInternalCafe(cafe, searchResults);
-        });
-    }
-
-    function renderInternalCafe(cafe, searchResults) {
-        var cafeItem = document.createElement('div');
-        cafeItem.className = 'cafe-item';
-        cafeItem.innerHTML = `
-        <div>
-            <strong>${cafe.cafeName}</strong><br>
-            <span>${cafe.location.address}</span><br>
-            <span>${cafe.rating}점</span>
-        </div>
-    `;
-        searchResults.appendChild(cafeItem);
-
-        createMarker({
-            latitude: cafe.location.latitude,
-            longitude: cafe.location.longitude,
-            tagName: cafe.cafeName,
-            address: cafe.location.address
-        });
-    }
-
-
-    // 필터 및 검색 이벤트 등록
-    document.addEventListener('DOMContentLoaded', function () {
-        var cafeItems = document.querySelectorAll('.cafe-item');
-
-        // 카페 리스트 아이템 클릭 이벤트 등록(수정)
-        cafeItems.forEach(function (item, index) {
-            item.addEventListener('click', function () {
-                var cafe = cafes[index];
-                var tagName = cafe.cafeName;
-                var address = cafe.location.address;
-                var phone = '전화번호 없음'; // 내부 DB는 기본값 없음
-                var description = cafe.description;
-                console.log(tagName, address, description);
-
-                showCafeInfo(tagName, address, phone, description);
-
-                // 맵의 해당 카페 위치로 이동
-                var lat = cafe.location.latitude;
-                var lng = cafe.location.longitude;
-                var moveLatLon = new kakao.maps.LatLng(lat, lng);
-                map.setCenter(moveLatLon);
-                map.setLevel(5); // 필요에 따라 레벨 조정
-            });
-        });
-
-        // 마커 추가 및 클릭 이벤트 등록
-        cafes.forEach(function (cafe, index) {
-            var markerPosition = new kakao.maps.LatLng(cafe.location.latitude, cafe.location.longitude);
-
-            // 마커 이미지 설정 (빨간색 마커)
-            var marker = new kakao.maps.Marker({
-                map: map,
-                position: markerPosition,
-                image: new kakao.maps.MarkerImage(
-                    'http://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
-                    new kakao.maps.Size(24, 35),
-                    {offset: new kakao.maps.Point(12, 35)}
-                )
+            cafeItem.addEventListener('click', () => {
+                const position = new kakao.maps.LatLng(cafe.location.latitude, cafe.location.longitude);
+                map.setCenter(position); // 지도 중심 이동
+                map.setLevel(3); // 확대 수준 조정
             });
 
-            // 마커 위 정보창
-            var infoWindow = new kakao.maps.InfoWindow({
-                content: `<div style="padding:5px;">${cafe.cafeName}</div>`
-            });
+            // 즐겨찾기 추가 버튼 클릭 이벤트 리스너
+            cafeItem.querySelector('.favorite-button').addEventListener('click', (event) => {
+                const button = event.target;
+                const cafeId = button.dataset.cafeId;
+                const action = button.dataset.action; // 현재 동작: add 또는 remove
 
-            // 마커 마우스오버 시 정보창 열기
-            kakao.maps.event.addListener(marker, 'mouseover', function () {
-                infoWindow.open(map, marker);
-            });
-
-            // 마커 마우스아웃 시 정보창 닫기
-            kakao.maps.event.addListener(marker, 'mouseout', function () {
-                infoWindow.close();
-            });
-
-            // 마커 클릭 시 카페 정보 표시
-            kakao.maps.event.addListener(marker, 'click', function () {
-                var tagName = cafe.cafeName;
-                var address = cafe.location.address;
-                var description = cafe.description;
-                console.log(tagName, address, description);
-                showCafeInfo(tagName, address, description);
-
-                // 해당 카페 리스트 아이템으로 스크롤 및 강조
-                var cafeItem = document.querySelectorAll('.cafe-item')[index];
-                if (cafeItem) {
-                    cafeItem.scrollIntoView({behavior: 'smooth', block: 'center'});
-                    // 기존 active 클래스 제거
-                    cafeItems.forEach(function (item) {
-                        item.classList.remove('active');
-                    });
-                    // 클릭된 아이템에 active 클래스 추가
-                    cafeItem.classList.add('active');
+                if (!cafeId) {
+                    alert("Cafe ID가 유효하지 않습니다. 다시 시도해주세요.");
+                    return;
                 }
+
+                // URL과 메서드를 동적으로 결정
+                const url = `/favorites?cafeId=${cafeId}`;
+                const method = action === "add" ? "POST" : "DELETE";
+
+                // 요청 전송
+                fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        if (action === "add") {
+                            // 추가 완료 상태로 변경
+                            button.textContent = "즐겨찾기 삭제";
+                            button.classList.remove('btn-outline-primary');
+                            button.classList.add('btn-outline-danger');
+                            button.dataset.action = "remove"; // 상태 변경
+                            alert("즐겨찾기에 추가되었습니다!");
+                        } else {
+                            // 삭제 완료 상태로 변경
+                            button.textContent = "즐겨찾기 추가";
+                            button.classList.remove('btn-outline-danger');
+                            button.classList.add('btn-outline-primary');
+                            button.dataset.action = "add"; // 상태 변경
+                            alert("즐겨찾기에서 삭제되었습니다!");
+                        }
+                    } else {
+                        alert("동작을 수행할 수 없습니다. 다시 시도해주세요.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error processing favorites:", error);
+                    alert("서버 요청에 실패했습니다.");
+                });
             });
+
+            searchResults.appendChild(cafeItem);
+            createMarker(cafe); // 마커 생성
         });
+    }
+
+
+    // 서버로 데이터 요청
+    function fetchData() {
+        const params = new URLSearchParams();
+
+        if (state.category) params.append('category', state.category);
+        if (state.minRating !== null) params.append('minRating', state.minRating);
+        if (state.maxRating !== null) params.append('maxRating', state.maxRating);
+        if (state.hashtags.length > 0) params.append('hashtags', state.hashtags.join(','));
+        if (state.keyword) params.append('keyword', state.keyword);
+
+        const query = `/cafes/filters?${params.toString()}`;
+
+        console.log("Generated Query URL:", query);
+
+        fetch(query)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to fetch data from the server.");
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Server Response Data:", data);
+                updateCafeListAndMap(data);
+            })
+            .catch(error => {
+                console.error("Error fetching cafes:", error);
+                alert("서버 요청에 실패했습니다.");
+            });
+    }
+
+    // 필터 적용 버튼 클릭 이벤트
+    document.getElementById('filter-button').addEventListener('click', () => {
+        const category = document.getElementById('category-filter').value;
+        const rating = document.getElementById('rating-filter').value;
+        const hashtags = Array.from(document.querySelectorAll('.hashtag.selected')).map(tag => tag.dataset.tag);
+        const keyword = document.getElementById('search-query').value.trim();
+
+        const minRating = rating ? parseFloat(rating) : null;
+        const maxRating = rating ? minRating + 1 : null;
+
+        // 검색어가 입력되어 있다면 유지, 없으면 기존 keyword 초기화
+        state.keyword = keyword || state.keyword;
+
+        // 필터 상태 업데이트
+        state.category = category || null;
+        state.minRating = minRating;
+        state.maxRating = maxRating;
+        state.hashtags = hashtags;
+
+        fetchData(); // 상태 기반으로 데이터 요청
     });
 
 
+    // 검색어 초기화 버튼
+    document.getElementById('clear-search-button').addEventListener('click', () => {
+        document.getElementById('search-query').value = ''; // 입력창 초기화
+        state.keyword = null; // 상태 초기화
+        fetchData(); // 검색어 없이 데이터 요청
+    });
 
-    fetch(`/cafes/filters?category=${encodeURIComponent(category || '')}&hashtag=${encodeURIComponent(hashtags.join(','))}&minRating=${minRating || ''}&keyword=${encodeURIComponent(query || '')}`)
-        .then(response => {
-            if (!response.ok) throw new Error(`API 요청 실패: ${response.status}`);
-            return response.json();
-        })
-        .then(data => {
-            if (Array.isArray(data)) {
-                updateCafeListAndMap(data);
-            } else {
-                console.error("API 응답 데이터가 배열이 아닙니다:", data);
-            }
-        })
-        .catch(error => {
-            console.error("필터 API 호출 오류:", error);
+    // 검색 버튼 클릭 이벤트
+    document.getElementById('search-button').addEventListener('click', () => {
+        const keyword = document.getElementById('search-query').value.trim();
+
+        if (!keyword) {
+            alert("검색어를 입력하세요.");
+            return;
+        }
+
+        state.keyword = keyword; // 키워드 상태 업데이트
+        fetchData(); // 키워드 추가된 데이터 요청
+    });
+
+
+    // 해시태그 선택 상태 관리
+    document.querySelectorAll('.hashtag').forEach(tag => {
+        tag.addEventListener('click', () => {
+            tag.classList.toggle('selected');
         });
+    });
 
+    // 필터 초기화 버튼 클릭 이벤트
+    document.getElementById('reset-filters').addEventListener('click', () => {
+        // 필터 상태 초기화 (키워드는 유지)
+        state.category = null;
+        state.minRating = null;
+        state.maxRating = null;
+        state.hashtags = [];
+
+        // 필터 UI 초기화
+        document.getElementById('category-filter').value = ''; // 카테고리 초기화
+        document.getElementById('rating-filter').value = ''; // 별점 초기화
+        document.querySelectorAll('.hashtag').forEach(tag => tag.classList.remove('selected')); // 해시태그 초기화
+
+        fetchData(); // 초기화된 필터 상태로 데이터 요청
+    });
 
 </script>
-
 </body>
 </html>

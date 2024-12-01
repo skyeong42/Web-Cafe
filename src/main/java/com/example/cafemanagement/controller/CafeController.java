@@ -53,6 +53,7 @@ public class CafeController {
         return ResponseEntity.ok(cafe);
     }
 
+
     @GetMapping("/search")
     @Operation(summary = "카페 검색", description = "키워드, 카테고리, 해시태그, 평점으로 카페를 검색합니다.")
     @ApiResponses(value = {
@@ -80,6 +81,20 @@ public class CafeController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+
+    @GetMapping("/filters")
+    public List<CafeDto> getFilteredCafes(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) List<String> hashtags,
+            @RequestParam(required = false) Double minRating,
+            @RequestParam(required = false) Double maxRating,
+            @RequestParam(required = false) String keyword
+    ) {
+        hashtags = (hashtags == null || hashtags.isEmpty()) ? null : hashtags;
+        return cafeService.filterCafes(category, hashtags, minRating, maxRating, keyword);
+    }
+
 
     @GetMapping("/categories")
     @Operation(summary = "카테고리 조회", description = "모든 카페 카테고리를 조회합니다.")

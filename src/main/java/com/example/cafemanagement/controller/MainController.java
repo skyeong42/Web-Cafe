@@ -52,19 +52,35 @@ public class MainController {
         return cafeService.searchCafesByName(query);
     }
 
+    // 즐겨찾기 페이지
     @GetMapping("/favorites")
-    public String favoriteCafe(Model model) {
+    public String favoriteCafe(Model model, Authentication authentication) {
+        // 인증되지 않은 사용자를 로그인 페이지로 리다이렉트
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+
+        // 인증된 사용자만 즐겨찾기 정보를 추가하고 페이지를 렌더링
         List<CafeDto> cafes = cafeService.getAllCafes();
         model.addAttribute("cafes", cafes);
         return "favorites";
     }
 
+
     @GetMapping("/find-store")
-    public String renderFindStorePage(Model model) {
+    public String renderFindStorePage(Model model, Authentication authentication) {
+        // 인증되지 않은 사용자를 로그인 페이지로 리다이렉트
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+
+        // 인증된 사용자만 카테고리 정보를 추가하고 페이지를 렌더링
         List<CategoryDto> categories = cafeService.getAllCategories();
         model.addAttribute("categories", categories);
         return "find-store";
     }
+
+
     // SearchRequest DTO 클래스
     public static class SearchRequest {
         private String query;
