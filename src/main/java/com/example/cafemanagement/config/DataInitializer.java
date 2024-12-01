@@ -132,7 +132,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // 테스트 사용자 생성
         User testUser = new User(testUsername, encodedPassword, "테스트 사용자", "Other", "testuser@example.com");
-        testUser.setProfilePicture("https://example.com/profile/testuser.png"); // 사진(필요에 따라 추가)
+        testUser.setProfilePicture("https://img.hankyung.com/photo/202307/AKR20230719120700017_02_i_P4.jpg"); // 사진(필요에 따라 추가)
 
         // 사용자 저장
         userRepository.save(testUser);

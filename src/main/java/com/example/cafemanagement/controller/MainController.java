@@ -80,6 +80,30 @@ public class MainController {
         return "find-store";
     }
 
+    //친구 페이지
+    @GetMapping("/friends")
+    public String renderFriendPage(Authentication authentication) {
+        // 인증되지 않은 사용자를 로그인 페이지로 리다이렉트
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+
+        // 인증된 사용자만 즐겨찾기 정보를 추가하고 페이지를 렌더링
+        return "friend";
+    }
+
+    //사용자 검색 페이지
+    @GetMapping("/user-search")
+    public String renderUserSerarchPage(Authentication authentication) {
+        // 인증되지 않은 사용자를 로그인 페이지로 리다이렉트
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+
+        // 인증된 사용자만 즐겨찾기 정보를 추가하고 페이지를 렌더링
+        return "user-search";
+    }
+
 
     // SearchRequest DTO 클래스
     public static class SearchRequest {
