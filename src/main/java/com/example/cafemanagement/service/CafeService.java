@@ -159,7 +159,7 @@ public class CafeService {
         cafeRepository.save(cafe); // 변경된 관계 저장
     }
 
-    /**
+
     @Transactional(readOnly = true)
     public List<CafeDto> searchCafes(String keyword, String category, String hashtag, Double minRating) {
         Category categoryEntity = (category != null && !category.isBlank())
@@ -185,7 +185,7 @@ public class CafeService {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
-     */
+
 
     public List<CafeDto> filterCafes(String category, List<String> hashtags, Double minRating, Double maxRating, String keyword) {
         System.out.println("Filter Parameters:");

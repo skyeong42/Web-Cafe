@@ -235,20 +235,24 @@
             align-items: center;
             margin-bottom: 15px;
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 2px solid transparent; /* 기본 테두리 */
             border-radius: 8px;
             background-color: #fff;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease; /* 부드러운 효과 */
         }
 
         .cafe-item:hover {
-            background-color: #f1f1f1;
+            border-color: #8B4513; /* 호버 시 테두리 색상 */
+            background-color: #f9f9f9; /* 호버 시 배경색 */
         }
 
         .cafe-item.active {
-            background-color: #e9ecef;
+            border-color: #FFD700; /* 클릭된 항목 테두리 강조 */
+            background-color: #fffbea; /* 클릭된 항목 배경색 강조 */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 강조를 위한 그림자 */
         }
+
 
         .cafe-item img {
             width: 80px;
@@ -308,10 +312,166 @@
                 border-bottom: 1px solid #ddd;
             }
         }
+
+        /* 오른쪽 패널 */
+        #right-panel-right {
+            height: 100%;
+            overflow: hidden; /* 패널 안에서만 스크롤 */
+            display: flex;
+            flex-direction: column;
+        }
+
+        #favorites-list {
+            flex-grow: 1; /* 남는 공간을 채움 */
+            overflow-y: auto; /* 스크롤 가능 */
+            max-height: calc(100vh - 120px); /* 가용 화면 공간 */
+        }
+
+        /* 카드 스타일 */
+        .card {
+            border: 1px solid #ccc; /* 개별 카드 테두리 */
+            border-radius: 10px; /* 둥근 모서리 */
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 그림자 */
+            overflow: hidden;
+            padding: 15px; /* 내부 여백 */
+            margin-bottom: 15px; /* 카드 간 간격 */
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* 호버 효과 */
+        }
+
+        /* 카드 이미지 */
+        .card-img-top {
+            width: 100%; /* 카드의 너비에 맞춤 */
+            height: 150px; /* 고정된 높이 설정 */
+            object-fit: cover; /* 비율 유지하며 잘라내기 */
+            border-radius: 8px; /* 둥근 모서리 */
+            margin-bottom: 10px; /* 이미지와 본문 간격 */
+        }
+
+
+
+
+        /* 카드 본문 */
+        .card-body {
+            flex: 1; /* 카드 본문이 남은 공간을 채우도록 설정 */
+            display: flex;
+            flex-direction: column;
+            gap: 5px; /* 본문 요소 간 간격 */
+            overflow: hidden; /* 텍스트가 넘치지 않도록 설정 */
+            text-align: left; /* 텍스트 정렬 */
+        }
+
+
+        /* 제거 버튼 */
+        .remove-favorite-btn {
+            background-color: #d9534f;
+            color: white;
+            font-size: 14px;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            align-self: center;
+        }
+
+        .remove-favorite-btn:hover {
+            background-color: #c9302c;
+        }
+
+        /* 카드 제목 */
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        /* 카드 텍스트 */
+        .card-text {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+            margin: 0;
+            word-wrap: break-word; /* 텍스트 줄바꿈 */
+        }
+
+        /* 즐겨찾기 목록 */
+        .favorites-results {
+        max-height: calc(100vh - 120px); /* 스크롤 가능한 높이 */
+        overflow-y: auto;
+        padding: 10px;
+        display: flex;
+        flex-direction: column; /* 세로 정렬 */
+        gap: 15px;
+        border: none;
+        border-radius: 0;
+        }
+
+
+        .favorite-item {
+            display: flex;
+            flex-direction: column; /* 세로 정렬 */
+            align-items: center; /* 중앙 정렬 */
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background-color: #fff;
+        }
+
+        .favorite-item img {
+            width: 120px; /* 이미지 너비 */
+            height: 120px; /* 이미지 높이 */
+            object-fit: cover; /* 비율 유지하며 자르기 */
+            border-radius: 8px;
+            margin-bottom: 10px; /* 텍스트와 간격 */
+        }
+
+        .favorite-item .info {
+            text-align: center; /* 텍스트 가운데 정렬 */
+            margin-bottom: 10px; /* 버튼과 간격 */
+        }
+
+        .favorite-item .info strong {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+            display: block;
+            color: #333;
+        }
+
+
+        .favorite-item .info p {
+            margin: 3px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .favorite-item:hover {
+            border-color: #8B4513; /* 호버 시 테두리 색상 */
+            background-color: #f9f9f9; /* 호버 시 배경색 */
+        }
+
+
+        .favorite-item.active {
+        border-color: #FFD700; /* 강조된 테두리 색 */
+        background-color: #fffbea; /* 강조된 배경 색 */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 강조 효과 */
+        }
+
+
+
     </style>
 </head>
 <body>
 <!-- 네비게이션 바 -->
+<!-- GNB (Global Navigation Bar) -->
 <div class="navbar-custom">
     <div class="navbar-left">
         <img src="/images/cafe.png" alt="Cafe Icon">
@@ -344,7 +504,13 @@
         </a>
     </div>
     <div class="navbar-right">
-        <a href="/logout">로그아웃</a>
+        <!-- 로그인된 경우 -->
+        <div sec:authorize="isAuthenticated()">
+            <span>안녕하세요, <span sec:authentication="name"></span>님!</span>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-outline-light ms-3">로그아웃</button>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -383,27 +549,30 @@
                 </div>
             </div>
 
-            <!-- 오른쪽 섹션: 카페 검색 화면 -->
+            <!-- 오른쪽 섹션: 즐겨찾기 화면 -->
             <div id="right-panel-right">
-                <!-- 카페 검색 화면 -->
-                <div id="cafe-search">
-                    <!-- 검색 결과 -->
-                    <div class="search-results">
-                        <h5>전체 카페 목록</h5>
-                        <div th:each="cafe : ${cafes}"
-                             class="cafe-item"
-                             data-name="${cafe.cafeName}"
-                             data-address="${cafe.location.address}"
-                             data-description="${cafe.description}">
-                            <img th:src="${cafe.imageUrl != null} ? ${cafe.imageUrl} : '@{/images/default_cafe.png}'" alt="카페 이미지">
-                            <div class="info">
-                                <strong th:text="${cafe.cafeName}">카페 이름</strong>
-                                <span th:text="'평점: ' + ${cafe.rating}">평점</span>
-                                <span th:text="${cafe.location.address}">주소</span>
-                                <span th:text="${cafe.description}">설명</span>
-                                <span th:text="${cafe.category}">카테고리</span>
-                                <button th:attr="id=${cafe.cafeId}" class="favorite-btn">
-                                    <i class="fa-regular fa-star"></i>
+                <!-- 즐겨찾기 화면 -->
+                <div id="favorites-list">
+                    <div class="favorites-results">
+                        <h5 class="section-title">즐겨찾기 목록</h5>
+                        <div th:each="favorite : ${favorites}" class="card favorite-item">
+                            <img class="card-img-top" th:src="${favorite.imageUrl != null} ? ${favorite.imageUrl} : '@{/images/default_cafe.png}'" alt="카페 이미지">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${favorite.cafeName}">카페 이름</h5>
+                                <p class="card-text">
+                                    <strong>평점:</strong> <span th:text="${favorite.rating}">0</span>
+                                </p>
+                                <p class="card-text">
+                                    <strong>주소:</strong> <span th:text="${favorite.location.address}">서울특별시~</span>
+                                </p>
+                                <p class="card-text">
+                                    <strong>설명:</strong> <span th:text="${favorite.description}">설명</span>
+                                </p>
+                                <p class="card-text">
+                                    <strong>카테고리:</strong> <span th:text="${favorite.category}">카테고리</span>
+                                </p>
+                                <button class="remove-favorite-btn btn btn-danger btn-sm" th:attr="data-cafe-id=${favorite.cafeId}">
+                                    즐겨찾기 제거
                                 </button>
                             </div>
                         </div>
@@ -414,61 +583,65 @@
     </div>
 </div>
 
+<!-- 푸터 (추가) -->
+<footer th:replace="layout/footer :: footer"></footer>
+
 <!-- 스크립트 -->
 <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=c1be6dbc09faa31e5316451aad20da0b&libraries=services"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 <script th:inline="javascript">
     /*<![CDATA[*/
-    var cafes = /*[[${cafes}]]*/ '[]'; // 서버에서 전달된 카페 데이터 (JSON 형식으로 전달됨)
-
     // 카카오 맵 초기화
-    var mapContainer = document.getElementById('map');
-    var mapOption = {
-        center: new kakao.maps.LatLng(37.5665, 126.9780), // 서울 시청 좌표
+    const mapContainer = document.getElementById('map');
+    const mapOption = {
+        center: new kakao.maps.LatLng(37.5665, 126.9780), // 기본 좌표 (서울 시청)
         level: 5 // 확대 레벨
     };
+    const map = new kakao.maps.Map(mapContainer, mapOption);
 
-    var map = new kakao.maps.Map(mapContainer, mapOption);
+    // 카페 데이터 초기화
+    const cafes = /*[[${cafes}]]*/ '[]'; // 서버에서 전달된 카페 데이터 (JSON 형식)
+    const favoritesContainer = document.querySelector('.favorites-results');
 
     // 카페 정보 표시 함수
     function showCafeInfo(name, address, description) {
-        console.log({name, address, description})
         document.getElementById('cafe-name').textContent = name;
         document.getElementById('cafe-address').textContent = address;
         document.getElementById('cafe-description').textContent = description;
         document.getElementById('cafe-info').style.display = 'block';
     }
 
-    // DOMContentLoaded 이벤트를 사용하여 DOM이 완전히 로드된 후에 실행
-    document.addEventListener('DOMContentLoaded', function() {
-        var cafeItems = document.querySelectorAll('.cafe-item');
+    // 선택된 항목 강조
+    function highlightSelectedItem(selectedItem, items) {
+        items.forEach(item => item.classList.remove('active')); // 기존 강조 제거
+        selectedItem.classList.add('active'); // 현재 항목 강조
+    }
 
-        // 카페 리스트 아이템 클릭 이벤트 등록
-        cafeItems.forEach(function(item, index) {
-            item.addEventListener('click', function() {
-                var cafe = cafes[index];
+    // 카페 리스트 클릭 이벤트 등록
+    function registerCafeEvents() {
+        const cafeItems = document.querySelectorAll('.cafe-item');
+        cafeItems.forEach((item, index) => {
+            item.addEventListener('click', function () {
+                const cafe = cafes[index];
+                const { cafeName, location, description } = cafe;
 
-                var name = cafe.cafeName;
-                var address = cafe.location.address;
-                var description = cafe.description;
-                console.log(name, address, description);
-                showCafeInfo(name, address, description);
-
-                // 맵의 해당 카페 위치로 이동
-                var lat = cafe.location.latitude;
-                var lng = cafe.location.longitude;
-                var moveLatLon = new kakao.maps.LatLng(lat, lng);
+                // 지도 이동 및 카페 정보 표시
+                const moveLatLon = new kakao.maps.LatLng(location.latitude, location.longitude);
                 map.setCenter(moveLatLon);
-                map.setLevel(5); // 필요에 따라 레벨 조정
+                map.setLevel(5);
+
+                showCafeInfo(cafeName, location.address, description);
+                highlightSelectedItem(this, cafeItems);
             });
         });
+    }
 
-        // 마커 추가 및 클릭 이벤트 등록
-        cafes.forEach(function(cafe, index) {
-            var markerPosition = new kakao.maps.LatLng(cafe.location.latitude, cafe.location.longitude);
+    // 카페 마커 추가
+    function addMarkers(cafes) {
+        cafes.forEach((cafe, index) => {
+            const markerPosition = new kakao.maps.LatLng(cafe.location.latitude, cafe.location.longitude);
 
-            // 마커 이미지 설정 (빨간색 마커)
-            var marker = new kakao.maps.Marker({
+            const marker = new kakao.maps.Marker({
                 map: map,
                 position: markerPosition,
                 image: new kakao.maps.MarkerImage(
@@ -478,81 +651,174 @@
                 )
             });
 
-            // 마커 위 정보창
-            var infoWindow = new kakao.maps.InfoWindow({
+            const infoWindow = new kakao.maps.InfoWindow({
                 content: `<div style="padding:5px;">${cafe.cafeName}</div>`
             });
 
-            // 마커 마우스오버 시 정보창 열기
-            kakao.maps.event.addListener(marker, 'mouseover', function () {
-                infoWindow.open(map, marker);
-            });
+            kakao.maps.event.addListener(marker, 'mouseover', () => infoWindow.open(map, marker));
+            kakao.maps.event.addListener(marker, 'mouseout', () => infoWindow.close());
+            kakao.maps.event.addListener(marker, 'click', () => {
+                showCafeInfo(cafe.cafeName, cafe.location.address, cafe.description);
 
-            // 마커 마우스아웃 시 정보창 닫기
-            kakao.maps.event.addListener(marker, 'mouseout', function () {
-                infoWindow.close();
-            });
-
-            // 마커 클릭 시 카페 정보 표시
-            kakao.maps.event.addListener(marker, 'click', function () {
-                var name = cafe.cafeName;
-                var address = cafe.location.address;
-                var description = cafe.description;
-                console.log(name, address, description);
-                showCafeInfo(name, address, description);
-
-                // 해당 카페 리스트 아이템으로 스크롤 및 강조
-                var cafeItem = document.querySelectorAll('.cafe-item')[index];
-                if (cafeItem) {
-                    cafeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    // 기존 active 클래스 제거
-                    cafeItems.forEach(function(item) { item.classList.remove('active'); });
-                    // 클릭된 아이템에 active 클래스 추가
-                    cafeItem.classList.add('active');
+                // 리스트와 연동
+                const cafeItems = document.querySelectorAll('.cafe-item');
+                if (cafeItems[index]) {
+                    cafeItems[index].scrollIntoView({ behavior: 'smooth', block: 'center' }); // 리스트 스크롤
+                    highlightSelectedItem(cafeItems[index], cafeItems); // 강조
+                } else {
+                    console.warn('cafeItem not found for index:', index);
                 }
             });
         });
-    });
+    }
+
+
+    // 즐겨찾기 목록 불러오기
+    function loadFavorites() {
+        fetch('/favorites/api')
+            .then(response => {
+                if (!response.ok) throw new Error(`Failed to load favorites: ${response.status} ${response.statusText}`);
+                return response.json();
+            })
+            .then(data => {
+                favoritesContainer.innerHTML = '';
+                if (!data || data.length === 0) {
+                    favoritesContainer.innerHTML = '<p>즐겨찾기에 등록된 카페가 없습니다.</p>';
+                    return;
+                }
+
+                data.forEach(favorite => {
+                    const favoriteItem = `
+                        <div class="favorite-item"
+                            data-id="${favorite.cafeId}"
+                            data-lat="${favorite.location.latitude}"
+                            data-lng="${favorite.location.longitude}"
+                            data-name="${favorite.cafeName}"
+                            data-address="${favorite.location.address}"
+                            data-description="${favorite.description}">
+                            <img
+                                src="${favorite.imageUrl || '/images/default_cafe.png'}"
+                                alt="${favorite.cafeName}"
+                                class="card-img-top"
+                            />
+                            <div class="info">
+                                <strong>${favorite.cafeName}</strong>
+                                <span>평점: ${favorite.rating}</span>
+                                <span>${favorite.location.address}</span>
+                                <span>${favorite.description || '설명이 없습니다.'}</span>
+                                <span>카테고리: ${favorite.category}</span>
+                            </div>
+                            <button class="remove-favorite-btn btn btn-danger btn-sm" data-cafe-id="${favorite.cafeId}">
+                                즐겨찾기 제거
+                            </button>
+                        </div>`;
+                    favoritesContainer.insertAdjacentHTML('beforeend', favoriteItem);
+                });
+
+                registerFavoriteEvents(); // 즐겨찾기 클릭 이벤트 등록
+            })
+            .catch(error => {
+                console.error('Error loading favorites:', error);
+                favoritesContainer.innerHTML = '<p>즐겨찾기 데이터를 불러오는 데 실패했습니다.</p>';
+            });
+    }
+
+
+    // 즐겨찾기 이벤트 등록
+   function registerFavoriteEvents() {
+        const favoriteItems = document.querySelectorAll('.favorite-item');
+
+        favoriteItems.forEach(item => {
+            // 즐겨찾기 항목 클릭 이벤트 (지도 이동 및 강조 표시)
+            item.removeEventListener('click', handleFavoriteClick); // 기존 이벤트 제거
+            item.addEventListener('click', handleFavoriteClick); // 새 이벤트 등록
+
+            // 제거 버튼 이벤트 등록
+            const removeButton = item.querySelector('.remove-favorite-btn');
+            removeButton.removeEventListener('click', handleRemoveFavorite); // 기존 이벤트 제거
+            removeButton.addEventListener('click', handleRemoveFavorite); // 새 이벤트 등록
+        });
+    }
+
+    // 즐겨찾기 항목 클릭 핸들러
+    function handleFavoriteClick() {
+        const lat = parseFloat(this.getAttribute('data-lat'));
+        const lng = parseFloat(this.getAttribute('data-lng'));
+        const name = this.getAttribute('data-name');
+        const address = this.getAttribute('data-address');
+        const description = this.getAttribute('data-description');
+
+        // 지도 이동 및 카페 정보 표시
+        const position = new kakao.maps.LatLng(lat, lng);
+        map.setCenter(position);
+        map.setLevel(5);
+
+        showCafeInfo(name, address, description);
+
+        // 기존 선택 강조 제거
+        document.querySelectorAll('.favorite-item').forEach(fav => fav.classList.remove('active'));
+        // 현재 클릭된 항목 강조
+        this.classList.add('active');
+    }
+
+    // 즐겨찾기 제거 버튼 핸들러
+    function handleRemoveFavorite(e) {
+        e.stopPropagation(); // 클릭 이벤트 전파 방지
+        const cafeId = this.getAttribute('data-cafe-id');
+
+        fetch(`/favorites?cafeId=${cafeId}`, { method: 'DELETE' }) // 수정된 부분
+            .then(response => {
+                if (response.ok) {
+                    alert('즐겨찾기에서 제거되었습니다.');
+
+                    // 버튼이 포함된 부모 요소 제거
+                    this.closest('.favorite-item').remove();
+
+                    // 즐겨찾기 목록이 비어 있는 경우 메시지 표시
+                    const favoritesContainer = document.querySelector('.favorites-results');
+                    if (favoritesContainer.children.length === 0) {
+                        favoritesContainer.innerHTML = '<p>즐겨찾기에 등록된 카페가 없습니다.</p>';
+                    }
+
+                    // 이벤트 핸들러 재등록
+                    registerFavoriteEvents();
+                } else {
+                    alert('즐겨찾기 제거 실패');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('서버와의 통신에 문제가 발생했습니다.');
+            });
+    }
+
+
+
+
+    // 초기화 함수
+    function initialize() {
+        console.log('Initializing app...');
+        console.log('Loaded cafes data:', cafes); // cafes 데이터 확인
+
+        registerCafeEvents();
+        addMarkers(cafes);
+        loadFavorites();
+    }
+
+
+    // 초기화 호출
+    initialize();
 
     // 검색 버튼 클릭 이벤트
-    document.getElementById('search-button').addEventListener('click', function() {
-        var query = document.getElementById('search-query').value;
+    document.getElementById('search-button').addEventListener('click', function () {
+        const query = document.getElementById('search-query').value;
         if (query.trim() !== "") {
-            // 실제 검색 로직을 여기에 추가
-            alert("검색어: " + query);
+            alert("검색어: " + query); // 실제 검색 로직 추가 필요
         } else {
             alert("검색어를 입력해주세요.");
         }
     });
 
-    <!-- JavaScript -->
-
-    document.addEventListener('DOMContentLoaded', function () {
-        // 모든 favorite 버튼 선택
-        const favoriteButtons = document.querySelectorAll('.favorite-btn');
-
-        // 각 버튼에 클릭 이벤트 추가
-        favoriteButtons.forEach(function (button) {
-            button.addEventListener('click', function () {
-                this.classList.toggle('active'); // 'active' 클래스 추가/제거
-                const icon = this.querySelector('i');
-
-                if (this.classList.contains('active')) {
-                    // 즐겨찾기 상태
-                    icon.classList.remove('fa-regular'); // 빈 별
-                    icon.classList.add('fa-solid'); // 꽉 찬 별
-                } else {
-                    // 기본 상태
-                    icon.classList.remove('fa-solid'); // 꽉 찬 별
-                    icon.classList.add('fa-regular'); // 빈 별
-                }
-
-                // 버튼의 고유 cafeId를 가져오기
-                const cafeId = this.getAttribute('id');
-                console.log(`Button clicked for cafeId: ${cafeId}`);
-            });
-        });
-    });
 
     /*]]>*/
 </script>
