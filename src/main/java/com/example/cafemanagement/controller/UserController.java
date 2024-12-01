@@ -87,6 +87,10 @@ public class UserController {
 
     @GetMapping("/mypage")
     public String showMyPage(Model model, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+
         String username = authentication.getName();
         UserProfileDetailsDto userProfile = userService.getUserProfileWithDetails(username);
         model.addAttribute("userProfile", userProfile);

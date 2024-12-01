@@ -109,6 +109,11 @@ public class DataInitializer implements CommandLineRunner {
         cafes.get(1).addMenu(new Menu(cafes.get(1), "에스프레소", 3000));
         cafes.get(2).addMenu(new Menu(cafes.get(2), "바닐라 라떼", 5300));
         cafes.get(2).addMenu(new Menu(cafes.get(2), "초콜릿 케이크", 7000));
+        cafes.get(2).addMenu(new Menu(cafes.get(2), "자몽에이드", 6500));
+        cafes.get(3).addMenu(new Menu(cafes.get(3), "마카롱", 3500));
+        cafes.get(3).addMenu(new Menu(cafes.get(3), "밀크티", 4500));
+
+
 
         // 별점 초기화
         cafes.get(0).setRating(4.5); // Cafe Sunrise
