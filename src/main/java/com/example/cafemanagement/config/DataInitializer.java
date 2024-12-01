@@ -80,25 +80,25 @@ public class DataInitializer implements CommandLineRunner {
                 new Cafe("Cafe Harmony", locations.get(2), 0, "조용하고 평화로운 시간을 보낼 수 있는 카페.",
                         "https://images.unsplash.com/photo-1498804103079-a6351b050096?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60",
                         largeCafe, Set.of(hashtag2, hashtag5)),
-                new Cafe("Cafe Delight", locations.get(3), 0,"다양한 음료와 디저트를 즐길 수 있는 카페.",
+                new Cafe("Cafe Delight", locations.get(3), 4.5,"다양한 음료와 디저트를 즐길 수 있는 카페.",
                         "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60",
                         largeCafe, Set.of(hashtag1, hashtag4, hashtag5)),
-                new Cafe("Cafe Bliss", locations.get(4), 0,"행복을 주는 맛있는 커피가 있는 카페.",
+                new Cafe("Cafe Bliss", locations.get(4), 4.2,"행복을 주는 맛있는 커피가 있는 카페.",
                         "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60",
                         studyCafe, Set.of(hashtag1, hashtag2)),
-                new Cafe("Cafe Aroma", locations.get(5), 0,"향긋한 커피 향이 가득한 카페.",
+                new Cafe("Cafe Aroma", locations.get(5), 3.5,"향긋한 커피 향이 가득한 카페.",
                         "https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60",
                         studyCafe, Set.of(hashtag4, hashtag3)),
-                new Cafe("Cafe Luna", locations.get(6), 0,"달빛 아래에서 즐기는 로맨틱한 카페.",
+                new Cafe("Cafe Luna", locations.get(6), 4.2,"달빛 아래에서 즐기는 로맨틱한 카페.",
                         "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60",
                         atmosphericCafe, Set.of(hashtag2, hashtag4)),
-                new Cafe("Cafe Mocha", locations.get(7), 0,"진한 모카 맛을 자랑하는 카페.",
+                new Cafe("Cafe Mocha", locations.get(7), 5,"진한 모카 맛을 자랑하는 카페.",
                         "https://images.unsplash.com/photo-1509042239860-f550ce710b93?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60",
                         atmosphericCafe, Set.of(hashtag5, hashtag1)),
-                new Cafe("Cafe Zen", locations.get(8), 0,"명상과 커피를 함께 즐길 수 있는 카페.",
+                new Cafe("Cafe Zen", locations.get(8), 3.7,"명상과 커피를 함께 즐길 수 있는 카페.",
                         "https://images.unsplash.com/photo-1511920170033-f8396924c348?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60",
                         studyCafe, Set.of(hashtag1, hashtag5)),
-                new Cafe("Cafe Velvet", locations.get(9), 0, "고급스러운 인테리어와 맛있는 커피가 있는 카페.",
+                new Cafe("Cafe Velvet", locations.get(9), 3.1, "고급스러운 인테리어와 맛있는 커피가 있는 카페.",
                         "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60",
                         atmosphericCafe, Set.of(hashtag4, hashtag3))
         );
@@ -113,12 +113,6 @@ public class DataInitializer implements CommandLineRunner {
         cafes.get(3).addMenu(new Menu(cafes.get(3), "마카롱", 3500));
         cafes.get(3).addMenu(new Menu(cafes.get(3), "밀크티", 4500));
 
-
-
-        // 별점 초기화
-        cafes.get(0).setRating(4.5); // Cafe Sunrise
-        cafes.get(1).setRating(4.2); // Cafe Blossom
-        cafes.get(3).setRating(4.8); // Cafe Delight
 
         // 카페 데이터 저장
         cafeRepository.saveAll(cafes);
