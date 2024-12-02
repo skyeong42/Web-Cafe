@@ -7,40 +7,30 @@ public class Friend {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long friendshipid;
+    private Long friendId;
 
-    @ManyToOne
-    private User user;
+    private String fromUsername;
 
-    @ManyToOne
-    private User friend;
+    private String toUsername;
 
-    public Friend(User user, User friend) {
-        this.user=user;
-        this.friend=friend;
+    public Long getFriendId() {
+        return friendId;
     }
 
-    public Long getFriendshipid() {
-        return friendshipid;
+    public String getFromUsername() {
+        return fromUsername;
     }
 
-    public User getUser() {
-        return user;
+    public String getToUsername() {
+        return toUsername;
     }
 
-    public User getFriend() {
-        return friend;
+
+    public void setFromUsername(String fromUsername) {
+        this.fromUsername = fromUsername;
     }
 
-    public void setFriendshipid(Long friendshipid) {
-        this.friendshipid = friendshipid;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public void setFriend(User friend) {
-        this.friend = friend;
+    public void setToUsername(String toUsername) {
+        this.toUsername = toUsername;
     }
 }

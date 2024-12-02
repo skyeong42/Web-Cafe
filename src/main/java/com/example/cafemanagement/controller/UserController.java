@@ -101,8 +101,7 @@ public class UserController {
     @GetMapping("/users/search")
     @ResponseBody
     public List<User> getSearchedUser(@RequestParam("keyword") String keyword, Authentication authentication) {
-        List<User> userList = this.userService.getSearchedUser(keyword);
-        userList.remove(authentication.getDetails());
+        List<User> userList = this.userService.getSearchedUser(keyword, authentication.getName());
         return userList;
     }
 }
