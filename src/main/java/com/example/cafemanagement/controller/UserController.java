@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class UserController {
@@ -104,4 +105,11 @@ public class UserController {
         List<User> userList = this.userService.getSearchedUser(keyword, authentication.getName());
         return userList;
     }
+
+    @GetMapping("/users/searchByUsername")
+    @ResponseBody
+    public User searchByUsername(@RequestParam("username") String username) {
+        return this.userService.searchByUsername(username);
+    }
+
 }
