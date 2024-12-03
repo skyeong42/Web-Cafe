@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title>친구 - Caffong</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* http://meyerweb.com/eric/tools/css/reset/
+v2.0 | 20110126
+License: none (public domain)
+*/
+
+    html, body, div, span, applet, object, iframe,
+    h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+    a, abbr, acronym, address, big, cite, code,
+    del, dfn, em, img, ins, kbd, q, s, samp,
+    small, strike, strong, sub, sup, tt, var,
+    b, u, i, center,
+    dl, dt, dd, ol, ul, li,
+    fieldset, form, label, legend,
+    table, caption, tbody, tfoot, thead, tr, th, td,
+    article, aside, canvas, details, embed,
+    figure, figcaption, footer, header, hgroup,
+    menu, nav, output, ruby, section, summary,
+    time, mark, audio, video {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        font-size: 100%;
+        font: inherit;
+        vertical-align: baseline;
+    }
+
+    /* HTML5 display-role reset for older browsers */
+    article, aside, details, figcaption, figure,
+    footer, header, hgroup, menu, nav, section {
+        display: block;
+    }
+
+    body {
+        line-height: 1;
+    }
+
+    ol, ul {
+        list-style: none;
+    }
+
+    blockquote, q {
+        quotes: none;
+    }
+
+    blockquote:before, blockquote:after,
+    q:before, q:after {
+        content: '';
+        content: none;
+    }
+
+    table {
+        border-collapse: collapse;
+        border-spacing: 0;
+    }
+
+    /* 전체 페이지 스타일 */
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Arial', sans-serif;
+        background-color: #f5f5f5;
+    }
+
+    /* 네비게이션 바 스타일 */
+    .navbar-custom {
+        background-color: #8B4513; /* 갈색 */
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 60px;
+    }
+
+    .navbar-left, .navbar-center, .navbar-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .navbar-left img {
+        height: 40px;
+        margin-right: 10px;
+    }
+
+    .navbar-left .brand {
+        color: #fff;
+        font-size: 1.5em;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .navbar-center {
+        gap: 20px;
+    }
+
+    .navbar-center .nav-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #fff;
+        text-decoration: none;
+        font-size: 0.9em;
+        cursor: pointer;
+    }
+
+    .navbar-center .nav-button img {
+        height: 24px;
+        margin-bottom: 5px;
+    }
+
+    .navbar-center .nav-button:hover {
+        color: #FFD700; /* 호버 시 노란색 */
+    }
+
+    .navbar-right a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 1em;
+        margin-left: 20px;
+    }
+
+    .navbar-right a:hover {
+        color: #FFD700; /* 호버 시 노란색 */
+    }
+
+    /* 메인 컨테이너 스타일 */
+    #main-container {
+        display: flex;
+        height: calc(100vh - 60px); /* 네비게이션 바 높이 보정 */
+    }
+
+    .friend-request {
+        width: 100%;
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px;
+    }
+
+    .friend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            cursor: pointer;
+    }
+
+    .friend-item:hover {
+        background-color: #f1f1f1;
+    }
+
+    .no-results {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+    }
+
+    .friend-request-list {
+            padding: 20px;
+            color: #666;
+    }
+
+  </style>
+</head>
+<body>
+<!-- 네비게이션 바 -->
+<div class="navbar-custom">
+  <div class="navbar-left">
+    <img src="/images/cafe.png" alt="Cafe Icon">
+    <a href="/" class="brand">Caffong</a>
+  </div>
+  <div class="navbar-center">
+    <a href="/favorites" class="nav-button">
+      <img src="/images/favorites.png" alt="즐겨찾기">
+      즐겨찾기
+    </a>
+    <a href="/mypage" class="nav-button">
+      <img src="/images/mypage.png" alt="마이페이지">
+      마이페이지
+    </a>
+    <a href="/find-store" class="nav-button">
+      <img src="/images/find_store.png" alt="매장찾기">
+      매장찾기
+    </a>
+    <a href="/user-search" class="nav-button">
+      <img src="/images/user_search.png" alt="사용자 검색">
+      사용자 검색
+    </a>
+    <a href="/friends" class="nav-button">
+      <img src="/images/friends.png" alt="친구">
+      친구
+    </a>
+    <a href="/calendar" class="nav-button">
+      <img src="/images/calendar.png" alt="캘린더">
+      캘린더
+    </a>
+  </div>
+  <div class="navbar-right">
+    <!-- 로그인된 경우 -->
+    <div sec:authorize="isAuthenticated()">
+      <span>안녕하세요, <span sec:authentication="name"></span>님!</span>
+      <form th:action="@{/logout}" method="post" style="display:inline;">
+        <button type="submit" class="btn btn-outline-light ms-3">로그아웃</button>
+      </form>
+    </div>
+    <!-- 로그인되지 않은 경우 -->
+    <div sec:authorize="isAnonymous()">
+      <a href="/login" class="btn btn-outline-light">로그인</a>
+      <a href="/register" class="btn btn-outline-light ms-2">회원가입</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- 메인 컨테이너 -->
+<div class="container">
+  <div class="friend-request"></div>
+  <div class="friendship-list"></div>
+</div>
+
+
+
+
+<!-- Bootstrap JS 포함 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+
+  document.addEventListener("DOMContentLoaded", () => {
+      console.log("DOM 준비됨");
+      fetchData();
+      fetchData2();
+  });
+
+  function fetchData2() {
+      fetch("/friendship/list")
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error("Failed to fetch data from the server.");
+              }
+              return response.json();
+          })
+          .then(data => {
+              console.log("Server Response Data:", data);
+              updateFriendshipList(data);
+          })
+          .catch(error => {
+              console.error("Error fetching users:", error);
+              alert("서버 요청에 실패했습니다.");
+          });
+  }
+
+
+  function fetchData() {
+
+      fetch("/friend/request")
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error("Failed to fetch data from the server.");
+              }
+              return response.json();
+          })
+          .then(data => {
+              console.log("Server Response Data:", data);
+              updateFriendList(data);
+          })
+          .catch(error => {
+              console.error("Error fetching users:", error);
+              alert("서버 요청에 실패했습니다.");
+          });
+  }
+
+  function updateFriendshipList(friends) {
+      const friendshipResults = document.querySelector('.friendship-list');
+      friendshipResults.innerHTML = '';
+      if (!Array.isArray(friends) || friends.length === 0) {
+          friendshipResults.innerHTML = '<div class="no-results">친구가 없습니다.</div>';
+          return;
+      }
+
+      friendshipResults.innerHTML = '<div class="friend-request-list">친구 목록</div>';
+
+      friends.forEach(user => {
+          const friendItem = document.createElement('div');
+          friendItem.className = 'friend-item';
+              friendItem.innerHTML = `
+                  <div style="display: flex; align-items: center;">
+                      <img src="${user.profilePicture}" alt="${user.username}" style="width: 100px; height: 100px; border-radius: 8px; margin-right: 15px;">
+                      <div>
+                          <strong style="font-size: 200%; margin-bottom: 15px;">${user.username}</strong><br>
+                          <span>${user.nickname}</span>
+                      </div>
+                  </div>
+              `;
+          friendshipResults.appendChild(friendItem);
+      });
+
+  }
+
+  function updateFriendList(friends) {
+          const searchResults = document.querySelector('.friend-request');
+          searchResults.innerHTML = ''; // 기존 결과 초기화
+
+          if (!Array.isArray(friends) || friends.length === 0) {
+              return;
+          }
+
+          searchResults.innerHTML = '<div class="friend-request-list">친구 신청 목록</div>';
+
+          friends.forEach(friend => {
+              console.log("Friend object:", friend);
+
+              let user=null;
+              fetch(`/users/searchByUsername?username=${friend.fromUsername}`)
+                  .then(response => {
+                      if (!response.ok) {
+                          throw new Error("Failed to fetch data from the server.");
+                      }
+                      return response.json();
+                  })
+                  .then(data => {
+                      console.log("Server Response Data:", data);
+                      user=data;
+                      const friendItem = document.createElement('div');
+                      friendItem.className = 'friend-item';
+                      friendItem.innerHTML = `
+                          <div style="display: flex; align-items: center;">
+                              <img src="${user.profilePicture}" alt="${user.username}" style="width: 100px; height: 100px; border-radius: 8px; margin-right: 15px;">
+                              <div>
+                                  <strong style="font-size: 200%; margin-bottom: 15px;">${user.username}</strong><br>
+                                  <span>${user.nickname}</span>
+                              </div>
+                          </div>
+                          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-left:auto">
+                              <button class="btn btn-dark" id="accept-button" data-username="${user.username}" style="margin-left:auto">수락</button>
+                              <button class="btn btn-dark" id="deny-button" data-username="${user.username}" style="margin-left:auto">거부</button>
+                          </div>
+                      `;
+
+                      const acceptButton = friendItem.querySelector("#accept-button");
+                      const denyButton = friendItem.querySelector("#deny-button");
+
+                      acceptButton.addEventListener('click', (event) => {
+                          const btnUsername=event.target.dataset.username;
+                          const btnQuery=`/friendship/add?username=${btnUsername}`
+                          const btnQuery2=`/friend/remove?username=${btnUsername}`
+                          fetch(btnQuery)
+                          .then(response => {
+                              if (!response.ok) {
+                                  throw new Error("Failed to fetch data from the server.");
+                              }
+                              return response.json();
+                          })
+                          .then(data => {
+                              console.log("Server Response Data:", data);
+                          })
+                          .catch(error => {
+                              console.error("Error fetching users:", error);
+                              alert("서버 요청에 실패했습니다.");
+                          });
+
+                          fetch(btnQuery2)
+                          .then(response => {
+                              if (!response.ok) {
+                                  throw new Error("Failed to fetch data from the server.");
+                              }
+                              return response.json();
+                          })
+                          .then(data => {
+                              console.log("Server Response Data:", data);
+                          })
+                          .catch(error => {
+                              console.error("Error fetching users:", error);
+                              alert("서버 요청에 실패했습니다.");
+                          });
+
+                          acceptButton.style.display = 'none';
+                          denyButton.style.display = 'none';
+                      })
+
+                      denyButton.addEventListener('click', (event) => {
+                          const btnUsername=event.target.dataset.username;
+                          const btnQuery=`/friend/remove?username=${btnUsername}`
+                          fetch(btnQuery)
+                          .then(response => {
+                              if (!response.ok) {
+                                  throw new Error("Failed to fetch data from the server.");
+                              }
+                              return response.json();
+                          })
+                          .then(data => {
+                              console.log("Server Response Data:", data);
+                          })
+                          .catch(error => {
+                              console.error("Error fetching users:", error);
+                              alert("서버 요청에 실패했습니다.");
+                          });
+                          acceptButton.style.display = 'none';
+                          denyButton.style.display = 'none';
+
+                      });
+                      searchResults.appendChild(friendItem);
+
+                  })
+                  .catch(error => {
+                      console.error("Error fetching users:", error);
+                      alert("서버 요청에 실패했습니다.");
+                  })
+
+
+
+
+          });
+
+      }
+
+
+
+</script>
+
+</body>
+</html>

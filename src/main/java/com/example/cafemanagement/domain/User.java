@@ -20,6 +20,7 @@ public class User extends BaseTimeEntity{
         this.nickname = nickname;
         this.gender = gender;
         this.email = email;
+        this.profilePicture="/images/default_profile_image.png";
     }
 
     public void setPassword(String password) {
@@ -93,6 +94,7 @@ public class User extends BaseTimeEntity{
     public List<Review> getReviews() {
         return reviews;
     }
+
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
