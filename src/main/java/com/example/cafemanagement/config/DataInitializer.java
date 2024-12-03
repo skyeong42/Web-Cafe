@@ -105,14 +105,28 @@ public class DataInitializer implements CommandLineRunner {
         //메뉴 데이터 생성
         cafes.get(0).addMenu(new Menu(cafes.get(0), "아메리카노", 4500));
         cafes.get(0).addMenu(new Menu(cafes.get(0), "카페 라떼", 5000));
+        cafes.get(0).addMenu(new Menu(cafes.get(0), "치즈 케이크", 5000));
         cafes.get(1).addMenu(new Menu(cafes.get(1), "카라멜 마끼아또", 5500));
+        cafes.get(1).addMenu(new Menu(cafes.get(1), "딸기라떼", 5500));
         cafes.get(1).addMenu(new Menu(cafes.get(1), "에스프레소", 3000));
         cafes.get(2).addMenu(new Menu(cafes.get(2), "바닐라 라떼", 5300));
         cafes.get(2).addMenu(new Menu(cafes.get(2), "초콜릿 케이크", 7000));
         cafes.get(2).addMenu(new Menu(cafes.get(2), "자몽에이드", 6500));
+        cafes.get(2).addMenu(new Menu(cafes.get(2), "크로플", 4500));
         cafes.get(3).addMenu(new Menu(cafes.get(3), "마카롱", 3500));
         cafes.get(3).addMenu(new Menu(cafes.get(3), "밀크티", 4500));
-
+        cafes.get(4).addMenu(new Menu(cafes.get(4), "초콜릿 조각 케이크", 6000));
+        cafes.get(4).addMenu(new Menu(cafes.get(4), "버블티", 4500));
+        cafes.get(5).addMenu(new Menu(cafes.get(5), "비엔나 커피", 5000));
+        cafes.get(5).addMenu(new Menu(cafes.get(5), "카페모카", 4500));
+        cafes.get(6).addMenu(new Menu(cafes.get(6), "소금빵", 3500));
+        cafes.get(6).addMenu(new Menu(cafes.get(6), "더치커피", 5000));
+        cafes.get(7).addMenu(new Menu(cafes.get(7), "아이스티", 4000));
+        cafes.get(7).addMenu(new Menu(cafes.get(7), "아인슈페너", 5000));
+        cafes.get(8).addMenu(new Menu(cafes.get(8), "녹차라떼", 5000));
+        cafes.get(8).addMenu(new Menu(cafes.get(8), "요거트", 5500));
+        cafes.get(9).addMenu(new Menu(cafes.get(9), "캐모마일", 5500));
+        cafes.get(9).addMenu(new Menu(cafes.get(9), "고구마라떼", 4800));
 
         // 카페 데이터 저장
         cafeRepository.saveAll(cafes);
@@ -127,23 +141,34 @@ public class DataInitializer implements CommandLineRunner {
         String testUsername3 = "user3";
         String testPassword3 = "1234";
 
+        String testUsername4 = "user4";
+        String testPassword4 = "1234";
+
+
         // 비밀번호 인코딩
         String encodedPassword = passwordEncoder.encode(testPassword);
         String encodedPassword2 = passwordEncoder.encode(testPassword2);
         String encodedPassword3 = passwordEncoder.encode(testPassword3);
+        String encodedPassword4 = passwordEncoder.encode(testPassword4);
 
         // 테스트 사용자 생성
         User testUser = new User(testUsername, encodedPassword, "테스트 사용자", "Other", "testuser@example.com");
         testUser.setProfilePicture("https://img.hankyung.com/photo/202307/AKR20230719120700017_02_i_P4.jpg"); // 사진(필요에 따라 추가)
 
         User testUser2 = new User(testUsername2, encodedPassword2, "테스트 사용자2", "Other", "testuser2@example.com");
+        testUser.setProfilePicture("https://i.pinimg.com/originals/bc/87/8a/bc878a698eb1154dfdea9071ad1f6bef.jpg");
 
-        User testUser3 = new User(testUsername3, encodedPassword3, "테스트 사용자3", "Other", "testuser2@example.com");
+        User testUser3 = new User(testUsername3, encodedPassword3, "테스트 사용자3", "Other", "testuser3@example.com");
+        testUser.setProfilePicture("https://th.bing.com/th/id/OIP.bjOy9RV428Nce7XTN-yvJQHaFj?rs=1&pid=ImgDetMain");
+
+        User testUser4 = new User(testUsername4, encodedPassword4, "테스트 사용자4", "Other", "testuser4@example.com");
+        testUser.setProfilePicture("https://i1.sndcdn.com/avatars-zc55qNuTJMhCYIS0-cUC76g-t500x500.jpg");
 
         // 사용자 저장
         userRepository.save(testUser);
         userRepository.save(testUser2);
         userRepository.save(testUser3);
+        userRepository.save(testUser4);
 
         System.out.println("샘플 카페 데이터 10개가 초기화되었습니다.");
     }
