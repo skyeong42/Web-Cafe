@@ -1,6 +1,7 @@
 package com.example.cafemanagement.controller;
 
 import com.example.cafemanagement.domain.Friend;
+import com.example.cafemanagement.domain.User;
 import com.example.cafemanagement.service.FriendService;
 import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
@@ -52,5 +53,18 @@ public class FriendController {
     public Integer addFriendship(@RequestParam("username") String username, Authentication authentication) {
         this.friendService.addFriendship(username, authentication.getName());
         return 0;
+    }
+
+    @GetMapping("/friend/remove")
+    @ResponseBody
+    public Integer removeFriend(@RequestParam("username") String username, Authentication authentication) {
+        this.friendService.removeFriend(username, authentication.getName());
+        return 0;
+    }
+
+    @GetMapping("/friendship/list")
+    @ResponseBody
+    public List<User> getFriendshipList(Authentication authentication) {
+        return this.friendService.getFriendshipList(authentication.getName());
     }
 }

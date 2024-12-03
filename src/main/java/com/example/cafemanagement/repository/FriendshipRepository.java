@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FriendshipRepository extends JpaRepository<Friendship, Integer> {
-    Friendship findByUser_Username(String username);
+    Friendship findByUsername(String username);
 }

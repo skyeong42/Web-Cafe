@@ -2,6 +2,7 @@ package com.example.cafemanagement.domain;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -10,23 +11,31 @@ public class Friendship {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name="user_username", nullable = false)
-    private User user;
+
+    private String username;
 
     @OneToMany(fetch = FetchType.LAZY)
-    private List<User> friendList;
+    private List<User> friendList = new ArrayList<>();
 
-    public void addFriend(User user){
-        this.friendList.add(user);
+
+
+
+    public void addFriend(User friend) {
+        if (!this.friendList.contains(friend)) {
+            this.friendList.add(friend);
+        }
     }
 
     public Long getId() {
         return id;
     }
 
-    public User getUser() {
-        return user;
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public List<User> getFriendList() {
