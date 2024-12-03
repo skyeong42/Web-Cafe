@@ -3,6 +3,7 @@ package com.example.cafemanagement.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.coyote.BadRequestException;
@@ -156,6 +157,10 @@ public class UserService {
 
     public List<User> getSearchedUser(String keyword, String myname) {
         return this.userRepository.findByKeyword(keyword, myname);
+    }
+
+    public User searchByUsername(String username) {
+        return this.userRepository.findByUsername(username).get();
     }
 }
 

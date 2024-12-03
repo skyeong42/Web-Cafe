@@ -189,11 +189,163 @@ License: none (public domain)
 
 <!-- 메인 컨테이너 -->
 <div class="container">
+  <div class="friend-request"></div>
+
 </div>
+
+
+
 
 <!-- Bootstrap JS 포함 -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+
+
+  document.addEventListener("DOMContentLoaded", () => {
+      console.log("DOM 준비됨");
+      fetchData();
+  }
+
+
+
+  function fetchData() {
+
+      fetch("/friend/request")
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error("Failed to fetch data from the server.");
+              }
+              return response.json();
+          })
+          .then(data => {
+              console.log("Server Response Data:", data);
+              updateFriendList(data);
+          })
+          .catch(error => {
+              console.error("Error fetching users:", error);
+              alert("서버 요청에 실패했습니다.");
+          });
+  }
+
+  function updateFriendList(friends) {
+          const searchResults = document.querySelector('.friend-request');
+          searchResults.innerHTML = ''; // 기존 결과 초기화
+
+          if (!Array.isArray(friends) || friends.length === 0) {
+              searchResults.innerHTML = '<div class="no-results">결과가 없습니다.</div>';
+              return;
+          }
+
+          friends.forEach(friend => {
+              console.log("Friend object:", friend);
+              const friendItem = document.createElement('div');
+              fetch(`/users/searchByUsername?username=${friend.fromUsername}`)
+                  .then(response => {
+                      if (!response.ok) {
+                          throw new Error("Failed to fetch data from the server.");
+                      }
+                      return response.json();
+                  })
+                  .then(data => {
+                      console.log("Server Response Data:", data);
+                      makeFriendList(data);
+                  })
+                  .catch(error => {
+                      console.error("Error fetching users:", error);
+                      alert("서버 요청에 실패했습니다.");
+                  });
+
+              makeFriendList(user) {
+                  friendItem.className = 'friend-item';
+                  friendItem.innerHTML = `
+                      <div style="display: flex; align-items: center;">
+                          <img src="${user.profilePicture}" alt="${user.username}" style="width: 100px; height: 100px; border-radius: 8px; margin-right: 15px;">
+                          <div>
+                              <strong style="font-size: 200%; margin-bottom: 15px;">${user.username}</strong><br>
+                              <span>${user.nickname}</span>
+                          </div>
+                      </div>
+                      <button class="btn btn-dark" id="accept-button" data-username="${user.username}" style="margin-left:auto">수락</button>
+                      <button class="btn btn-dark" id="friend-button" data-username="${user.username}" style="margin-left:auto">거부</button>
+                  `;
+
+                  const acceptButton = friendItem.querySelector("#accept-button");
+                  const denyButton = friendItem.querySelector("#deny-button");
+
+                  acceptButton.addEventListener('click', (event) => {
+                      const btnUsername=event.target.dataset.username;
+                      const btnQuery=`/friendship/add?username=${btnUsername}`
+                      const btnQuery2=`/friend/remove?username=${btnUsername}`
+                      fetch(btnQuery)
+                      .then(response => {
+                          if (!response.ok) {
+                              throw new Error("Failed to fetch data from the server.");
+                          }
+                          return response.json();
+                      })
+                      .then(data => {
+                          console.log("Server Response Data:", data);
+                      })
+                      .catch(error => {
+                          console.error("Error fetching users:", error);
+                          alert("서버 요청에 실패했습니다.");
+                      });
+
+                      fetch(btnQuery2)
+                      .then(response => {
+                          if (!response.ok) {
+                              throw new Error("Failed to fetch data from the server.");
+                          }
+                          return response.json();
+                      })
+                      .then(data => {
+                          console.log("Server Response Data:", data);
+                      })
+                      .catch(error => {
+                          console.error("Error fetching users:", error);
+                          alert("서버 요청에 실패했습니다.");
+                      });
+
+                      event.target.style.display='none';
+                  })
+
+                  denyButton.addEventListener('click', (event) => {
+                      const btnUsername=event.target.dataset.username;
+                      const btnQuery=`/friend/remove?username=${btnUsername}`
+                      fetch(btnQuery)
+                      .then(response => {
+                          if (!response.ok) {
+                              throw new Error("Failed to fetch data from the server.");
+                          }
+                          return response.json();
+                      })
+                      .then(data => {
+                          console.log("Server Response Data:", data);
+                      })
+                      .catch(error => {
+                          console.error("Error fetching users:", error);
+                          alert("서버 요청에 실패했습니다.");
+                      });
+
+                      event.target.style.display='none';
+                  })
+
+              }
+          });
+          searchResults.appendChild(friendItem);
+      }
+
+    function setButtonText(btnText, friendButton) {
+
+        if(btnText==1) {
+            friendButton.style.display='none';
+        }
+        else if(btnText==2){
+            friendButton.innerText="친구 신청 중";
+            friendButton.disabled=true;
+        }
+
+    }
 
 </script>
 

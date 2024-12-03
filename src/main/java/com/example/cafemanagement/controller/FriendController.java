@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
+
 
 @Controller
 public class FriendController {
@@ -36,6 +38,19 @@ public class FriendController {
     @ResponseBody
     public Integer addFriend(@RequestParam("username") String username, Authentication authentication) {
         this.friendService.addFriend(username, authentication.getName());
+        return 0;
+    }
+
+    @GetMapping("/friend/request")
+    @ResponseBody
+    public List<Friend> getFriend(Authentication authentication) {
+        return this.friendService.getFriend(authentication.getName());
+    }
+
+    @GetMapping("/friendship/add")
+    @ResponseBody
+    public Integer addFriendship(@RequestParam("username") String username, Authentication authentication) {
+        this.friendService.addFriendship(username, authentication.getName());
         return 0;
     }
 }

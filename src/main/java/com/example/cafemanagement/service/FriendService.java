@@ -5,6 +5,7 @@ import com.example.cafemanagement.domain.Friendship;
 import com.example.cafemanagement.domain.User;
 import com.example.cafemanagement.repository.FriendRepository;
 import com.example.cafemanagement.repository.FriendshipRepository;
+import com.example.cafemanagement.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,10 +16,12 @@ public class FriendService {
 
     private final FriendRepository friendRepository;
     private final FriendshipRepository friendshipRepository;
+    private final UserRepository userRepository;
 
-    public FriendService(FriendRepository friendRepository, FriendshipRepository friendshipRepository){
+    public FriendService(FriendRepository friendRepository, FriendshipRepository friendshipRepository, UserRepository userRepository){
         this.friendRepository=friendRepository;
         this.friendshipRepository=friendshipRepository;
+        this.userRepository=userRepository;
     }
 
     public Integer isFriendship(Long userid, String myname) {
@@ -47,5 +50,14 @@ public class FriendService {
         friend.setFromUsername(myname);
         friend.setToUsername(username);
         this.friendRepository.save(friend);
+    }
+
+    public List<Friend> getFriend(String myname) {
+        return this.friendRepository.findByToUsername(myname);
+    }
+
+    public void addFriendship(String username, String myname) {
+
+        this.friendshipRepository
     }
 }

@@ -33,7 +33,4 @@ public class Friendship {
         return friendList;
     }
 
-    public void setFriendList(List<User> friendList) {
-        this.friendList = friendList;
-    }
 }
