@@ -154,6 +154,9 @@ public class UserService {
         return new UserUpdateRequestDto(user.getPassword(), user.getEmail(), user.getNickname(), user.getProfilePicture());
     }
 
+    public List<User> getSearchedUser(String keyword, String myname) {
+        return this.userRepository.findByKeyword(keyword, myname);
+    }
 }
 
 

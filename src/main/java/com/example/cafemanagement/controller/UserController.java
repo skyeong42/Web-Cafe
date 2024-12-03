@@ -1,5 +1,6 @@
 package com.example.cafemanagement.controller;
 
+import com.example.cafemanagement.domain.User;
 import com.example.cafemanagement.dto.LoginDto;
 import com.example.cafemanagement.dto.UserProfileDetailsDto;
 import com.example.cafemanagement.dto.UserSaveRequestDto;
@@ -9,13 +10,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.Cookie;
 import org.springframework.security.core.Authentication;
 import jakarta.servlet.http.HttpServletResponse;
+
+import java.util.List;
 
 @Controller
 public class UserController {
@@ -95,5 +96,12 @@ public class UserController {
         UserProfileDetailsDto userProfile = userService.getUserProfileWithDetails(username);
         model.addAttribute("userProfile", userProfile);
         return "mypage"; // Thymeleaf 템플릿 이름
+    }
+
+    @GetMapping("/users/search")
+    @ResponseBody
+    public List<User> getSearchedUser(@RequestParam("keyword") String keyword, Authentication authentication) {
+        List<User> userList = this.userService.getSearchedUser(keyword, authentication.getName());
+        return userList;
     }
 }

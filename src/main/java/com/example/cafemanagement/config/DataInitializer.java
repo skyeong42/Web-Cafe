@@ -121,15 +121,29 @@ public class DataInitializer implements CommandLineRunner {
         String testUsername = "user";
         String testPassword = "1234";
 
+        String testUsername2 = "user2";
+        String testPassword2 = "1234";
+
+        String testUsername3 = "user3";
+        String testPassword3 = "1234";
+
         // 비밀번호 인코딩
         String encodedPassword = passwordEncoder.encode(testPassword);
+        String encodedPassword2 = passwordEncoder.encode(testPassword2);
+        String encodedPassword3 = passwordEncoder.encode(testPassword3);
 
         // 테스트 사용자 생성
         User testUser = new User(testUsername, encodedPassword, "테스트 사용자", "Other", "testuser@example.com");
-        testUser.setProfilePicture("https://example.com/profile/testuser.png"); // 사진(필요에 따라 추가)
+        testUser.setProfilePicture("https://img.hankyung.com/photo/202307/AKR20230719120700017_02_i_P4.jpg"); // 사진(필요에 따라 추가)
+
+        User testUser2 = new User(testUsername2, encodedPassword2, "테스트 사용자2", "Other", "testuser2@example.com");
+
+        User testUser3 = new User(testUsername3, encodedPassword3, "테스트 사용자3", "Other", "testuser2@example.com");
 
         // 사용자 저장
         userRepository.save(testUser);
+        userRepository.save(testUser2);
+        userRepository.save(testUser3);
 
         System.out.println("샘플 카페 데이터 10개가 초기화되었습니다.");
     }

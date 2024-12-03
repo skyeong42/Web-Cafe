@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title>친구 - Caffong</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* http://meyerweb.com/eric/tools/css/reset/
+v2.0 | 20110126
+License: none (public domain)
+*/
+
+    html, body, div, span, applet, object, iframe,
+    h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+    a, abbr, acronym, address, big, cite, code,
+    del, dfn, em, img, ins, kbd, q, s, samp,
+    small, strike, strong, sub, sup, tt, var,
+    b, u, i, center,
+    dl, dt, dd, ol, ul, li,
+    fieldset, form, label, legend,
+    table, caption, tbody, tfoot, thead, tr, th, td,
+    article, aside, canvas, details, embed,
+    figure, figcaption, footer, header, hgroup,
+    menu, nav, output, ruby, section, summary,
+    time, mark, audio, video {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        font-size: 100%;
+        font: inherit;
+        vertical-align: baseline;
+    }
+
+    /* HTML5 display-role reset for older browsers */
+    article, aside, details, figcaption, figure,
+    footer, header, hgroup, menu, nav, section {
+        display: block;
+    }
+
+    body {
+        line-height: 1;
+    }
+
+    ol, ul {
+        list-style: none;
+    }
+
+    blockquote, q {
+        quotes: none;
+    }
+
+    blockquote:before, blockquote:after,
+    q:before, q:after {
+        content: '';
+        content: none;
+    }
+
+    table {
+        border-collapse: collapse;
+        border-spacing: 0;
+    }
+
+    /* 전체 페이지 스타일 */
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Arial', sans-serif;
+        background-color: #f5f5f5;
+    }
+
+    /* 네비게이션 바 스타일 */
+    .navbar-custom {
+        background-color: #8B4513; /* 갈색 */
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 60px;
+    }
+
+    .navbar-left, .navbar-center, .navbar-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .navbar-left img {
+        height: 40px;
+        margin-right: 10px;
+    }
+
+    .navbar-left .brand {
+        color: #fff;
+        font-size: 1.5em;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .navbar-center {
+        gap: 20px;
+    }
+
+    .navbar-center .nav-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #fff;
+        text-decoration: none;
+        font-size: 0.9em;
+        cursor: pointer;
+    }
+
+    .navbar-center .nav-button img {
+        height: 24px;
+        margin-bottom: 5px;
+    }
+
+    .navbar-center .nav-button:hover {
+        color: #FFD700; /* 호버 시 노란색 */
+    }
+
+    .navbar-right a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 1em;
+        margin-left: 20px;
+    }
+
+    .navbar-right a:hover {
+        color: #FFD700; /* 호버 시 노란색 */
+    }
+
+    /* 메인 컨테이너 스타일 */
+    #main-container {
+        display: flex;
+        height: calc(100vh - 60px); /* 네비게이션 바 높이 보정 */
+    }
+
+    .search-bar {
+        width: 100%;
+        display: flex;
+        align-items: center; /* 세로 가운데 정렬 */
+        gap: 10px; /* 입력창과 버튼 사이의 간격 */
+        padding: 10px;
+    }
+
+    .search-results {
+        width: 100%;
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px;
+    }
+
+    .user-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            cursor: pointer;
+    }
+
+    .user-item:hover {
+        background-color: #f1f1f1;
+    }
+
+    .no-results {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+    }
+
+  </style>
+</head>
+<body>
+<!-- 네비게이션 바 -->
+<div class="navbar-custom">
+  <div class="navbar-left">
+    <img src="/images/cafe.png" alt="Cafe Icon">
+    <a href="/" class="brand">Caffong</a>
+  </div>
+  <div class="navbar-center">
+    <a href="/favorites" class="nav-button">
+      <img src="/images/favorites.png" alt="즐겨찾기">
+      즐겨찾기
+    </a>
+    <a href="/mypage" class="nav-button">
+      <img src="/images/mypage.png" alt="마이페이지">
+      마이페이지
+    </a>
+    <a href="/find-store" class="nav-button">
+      <img src="/images/find_store.png" alt="매장찾기">
+      매장찾기
+    </a>
+    <a href="/user-search" class="nav-button">
+      <img src="/images/user_search.png" alt="사용자 검색">
+      사용자 검색
+    </a>
+    <a href="/friends" class="nav-button">
+      <img src="/images/friends.png" alt="친구">
+      친구
+    </a>
+    <a href="/calendar" class="nav-button">
+      <img src="/images/calendar.png" alt="캘린더">
+      캘린더
+    </a>
+  </div>
+  <div class="navbar-right">
+    <!-- 로그인된 경우 -->
+    <div sec:authorize="isAuthenticated()">
+      <span>안녕하세요, <span sec:authentication="name"></span>님!</span>
+      <form th:action="@{/logout}" method="post" style="display:inline;">
+        <button type="submit" class="btn btn-outline-light ms-3">로그아웃</button>
+      </form>
+    </div>
+    <!-- 로그인되지 않은 경우 -->
+    <div sec:authorize="isAnonymous()">
+      <a href="/login" class="btn btn-outline-light">로그인</a>
+      <a href="/register" class="btn btn-outline-light ms-2">회원가입</a>
+    </div>
+  </div>
+</div>
+
+<!-- 메인 컨테이너 -->
+<div class="container">
+  <div class="search-bar">
+    <input type="text" id="search-query" class="form-control" placeholder="사용자 검색">
+    <button id="clear-search-button" class="btn btn-light">x</button>
+    <button id="search-button" class="btn btn-primary" style="width: 80px">검색</button>
+  </div>
+  <div class="search-results"></div>
+</div>
+
+<!-- Bootstrap JS 포함 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  let keyword=null;
+
+  // 결과 업데이트
+    function updateUserList(users) {
+        const searchResults = document.querySelector('.search-results');
+        searchResults.innerHTML = ''; // 기존 결과 초기화
+
+        if (!Array.isArray(users) || users.length === 0) {
+            searchResults.innerHTML = '<div class="no-results">결과가 없습니다.</div>';
+            return;
+        }
+
+        users.forEach(user => {
+            console.log("User object:", user);
+            const userItem = document.createElement('div');
+            userItem.className = 'user-item';
+            userItem.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <img src="${user.profilePicture}" alt="${user.username}" style="width: 100px; height: 100px; border-radius: 8px; margin-right: 15px;">
+                    <div>
+                        <strong style="font-size: 200%; margin-bottom: 15px;">${user.username}</strong><br>
+                        <span>${user.nickname}</span>
+                    </div>
+                </div>
+                <button class="btn btn-dark" id="friend-button" data-username="${user.username}" style="margin-left:auto">친구 추가</button>
+            `;
+            let btnText=0
+
+            const friendButton = userItem.querySelector("#friend-button");
+
+            const fetchFriendData = fetch(`/friend?username=${user.username}`).then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to fetch data from /friend.");
+                }
+                return response.json();
+            });
+
+            const fetchFriendshipData = fetch(`/friendship?userid=${user.id}`).then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to fetch data from /friendship.");
+                }
+                return response.json();
+            });
+
+            // 두 fetch 요청을 모두 기다린 후 처리
+            Promise.all([fetchFriendData, fetchFriendshipData])
+                .then(([data1, data2]) => {
+                    console.log("Server Response Data from /friend:", data1);
+                    console.log("Server Response Data from /friendship:", data2);
+
+                    // 데이터에 따라 btnText 값을 설정
+                    if (data1 === 2) {
+                        btnText = data1;
+                    }
+                    if (data2 === 1) {
+                        btnText = data2;
+                    }
+
+                    // 버튼 텍스트 설정
+                    setButtonText(btnText, friendButton);
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                    alert("서버 요청에 실패했습니다.");
+                });
+
+            friendButton.addEventListener('click', (event) => {
+                const btnUsername=event.target.dataset.username;
+                const btnQuery3=`/friend/add?username=${btnUsername}`
+                fetch(btnQuery3)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch data from the server.");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Server Response Data:", data);
+                })
+                .catch(error => {
+                    console.error("Error fetching users:", error);
+                    alert("서버 요청에 실패했습니다.");
+                });
+                event.target.disabled=true;
+                event.target.innerText="친구 신청 중";
+            })
+
+
+
+            searchResults.appendChild(userItem);
+        });
+    }
+
+  function setButtonText(btnText, friendButton) {
+
+      if(btnText==1) {
+          friendButton.style.display='none';
+      }
+      else if(btnText==2){
+          friendButton.innerText="친구 신청 중";
+          friendButton.disabled=true;
+      }
+
+  }
+
+  // 서버로 데이터 요청
+  function fetchData() {
+
+      const query = `/users/search?keyword=${keyword}`;
+
+      console.log("Generated Query URL:", query);
+
+      fetch(query)
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error("Failed to fetch data from the server.");
+              }
+              return response.json();
+          })
+          .then(data => {
+              console.log("Server Response Data:", data);
+              updateUserList(data);
+          })
+          .catch(error => {
+              console.error("Error fetching users:", error);
+              alert("서버 요청에 실패했습니다.");
+          });
+  }
+
+  // 검색어 초기화 버튼
+  document.getElementById('clear-search-button').addEventListener('click', () => {
+      document.getElementById('search-query').value = ''; // 입력창 초기화
+      keyword = null; // 상태 초기화
+      fetchData(); // 검색어 없이 데이터 요청
+  });
+
+  // 검색 버튼 클릭 이벤트
+  document.getElementById('search-button').addEventListener('click', () => {
+      const keyword1 = document.getElementById('search-query').value.trim();
+
+      if (!keyword1) {
+          alert("검색어를 입력하세요.");
+          return;
+      }
+
+      keyword = keyword1; // 키워드 상태 업데이트
+      fetchData(); // 키워드 추가된 데이터 요청
+  });
+
+
+</script>
+
+</body>
+</html>

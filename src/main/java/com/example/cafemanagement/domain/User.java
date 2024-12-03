@@ -20,6 +20,7 @@ public class User extends BaseTimeEntity{
         this.nickname = nickname;
         this.gender = gender;
         this.email = email;
+        this.profilePicture="/images/default_profile_image.png";
     }
 
     public void setPassword(String password) {
@@ -52,6 +53,9 @@ public class User extends BaseTimeEntity{
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Friendship friendship;
 
     // Default constructor for JPA
     protected User() {}
@@ -92,6 +96,10 @@ public class User extends BaseTimeEntity{
 
     public List<Review> getReviews() {
         return reviews;
+    }
+
+    public Friendship getFriendship() {
+        return friendship;
     }
 
     public void setNickname(String nickname) {
