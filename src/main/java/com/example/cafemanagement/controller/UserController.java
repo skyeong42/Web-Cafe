@@ -112,4 +112,16 @@ public class UserController {
         return this.userService.searchByUsername(username);
     }
 
+    // 아이디 찾기 페이지
+    @GetMapping("/find-id")
+    public String showFindIdPage() {
+        return "find-id"; // Thymeleaf 템플릿 이름
+    }
+
+    // 비밀번호 찾기 페이지
+    @GetMapping("/find-password")
+    public String showFindPasswordPage() {
+        return "find-password"; // Thymeleaf 템플릿 이름
+    }
+
 }
