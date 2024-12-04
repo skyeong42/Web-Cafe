@@ -40,7 +40,8 @@ public class FriendService {
 
     public Integer isFriend(String username, String myname) {
         Friend friend = this.friendRepository.findByName(myname, username);
-        if(friend==null){
+        Friend friend2 = this.friendRepository.findByName(username, myname);
+        if(friend==null && friend2==null){
             return 0;
         }
         return 2;
