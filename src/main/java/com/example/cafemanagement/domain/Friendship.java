@@ -14,7 +14,12 @@ public class Friendship {
 
     private String username;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @ManyToMany
+    @JoinTable(
+            name = "friendship_user",
+            joinColumns = @JoinColumn(name = "friendship_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     private List<User> friendList = new ArrayList<>();
 
 
