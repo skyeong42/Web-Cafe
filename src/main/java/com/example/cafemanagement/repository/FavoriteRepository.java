@@ -43,12 +43,6 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     """, nativeQuery = true)
     List<Object[]> findFavoritesByUserId(@Param("userId") Long userId);
 
-
-
-
-
-
-
     boolean existsByUserAndCafe(User user, Cafe cafe);
 
 }
