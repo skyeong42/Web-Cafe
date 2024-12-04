@@ -63,9 +63,10 @@ public class AccountController {
         try {
             accountService.resetPassword(token, newPassword);
             model.addAttribute("message", "비밀번호가 성공적으로 변경되었습니다.");
-            return "reset-password-confirm"; // 결과 페이지
+            return "reset-password-confirm"; // 성공 페이지
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("token", token); // token 값 전달
             return "reset-password-error"; // 에러 페이지
         }
     }
