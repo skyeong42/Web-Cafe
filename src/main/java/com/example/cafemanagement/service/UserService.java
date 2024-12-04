@@ -51,7 +51,7 @@ public class UserService {
     }
 
     private void validateRegistration(UserSaveRequestDto request) {
-        if (request.getPassword().length() < 8) {
+        if (request.getPassword().length() < 8 || request.getPassword().length() > 20) {
             throw new IllegalArgumentException("비밀번호는 12자 이상 20자 이하로 입력해야 합니다.");
         }
         if (userRepository.existsByUsername(request.getUsername())) {
