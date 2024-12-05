@@ -22,4 +22,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "OR LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
             "AND u.username <> :myname")
     List<User> findByKeyword(@Param("keyword") String keyword, @Param("myname") String myname);
+
+    Optional<User> findByEmail(String email);
+    Optional<User> findByUsernameAndEmail(String username, String email);
+
 }

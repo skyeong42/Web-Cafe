@@ -45,12 +45,6 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
     Favorite findByCafe_CafeIdAndUser_Username(Long cafeId, String username);
 
-
-
-
-
-
-
     boolean existsByUserAndCafe(User user, Cafe cafe);
 
 }
