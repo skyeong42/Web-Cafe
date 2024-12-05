@@ -1,16 +1,16 @@
 package com.example.cafemanagement.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class BookingDto {
     private Long bookingId;
     private String title;
-    private LocalDateTime bookingTime;
+    private LocalDate bookingTime;
     private String status;
     private Long userId; // 사용자 ID
     private Long cafeId; // 카페 ID
 
-    public BookingDto(Long bookingId, String title, LocalDateTime bookingTime, String status, Long userId, Long cafeId) {
+    public BookingDto(Long bookingId, String title, LocalDate bookingTime, String status, Long userId, Long cafeId) {
         this.bookingId = bookingId;
         this.title = title;
         this.bookingTime = bookingTime;
@@ -28,7 +28,7 @@ public class BookingDto {
         return title;
     }
 
-    public LocalDateTime getBookingTime() {
+    public LocalDate getBookingTime() {
         return bookingTime;
     }
 

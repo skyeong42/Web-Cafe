@@ -2,6 +2,9 @@ package com.example.cafemanagement.domain;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 public class Menu {
 
@@ -12,6 +15,13 @@ public class Menu {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cafe_id", nullable = false) // 외래 키 매핑
     private Cafe cafe; // 연관된 카페 객체
+
+    public List<BookingMenu> getBookingMenus() {
+        return bookingMenus;
+    }
+
+    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookingMenu> bookingMenus = new ArrayList<>();
 
     @Column(nullable = false)
     private String name; // 메뉴 이름

@@ -39,6 +39,13 @@ public class Review {
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments = new ArrayList<>(); // 리뷰 첨부파일 리스트
 
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewLike> likes = new ArrayList<>();
+
+    public int getLikeCount() {
+        return likes.size();
+    }
+
     // 기본 생성자
     protected Review() {}
 
