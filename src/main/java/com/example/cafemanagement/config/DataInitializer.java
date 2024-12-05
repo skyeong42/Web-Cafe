@@ -156,13 +156,13 @@ public class DataInitializer implements CommandLineRunner {
         testUser.setProfilePicture("https://img.hankyung.com/photo/202307/AKR20230719120700017_02_i_P4.jpg"); // 사진(필요에 따라 추가)
 
         User testUser2 = new User(testUsername2, encodedPassword2, "테스트 사용자2", "Other", "testuser2@example.com");
-        testUser.setProfilePicture("https://i.pinimg.com/originals/bc/87/8a/bc878a698eb1154dfdea9071ad1f6bef.jpg");
+        testUser2.setProfilePicture("https://i.pinimg.com/originals/bc/87/8a/bc878a698eb1154dfdea9071ad1f6bef.jpg");
 
         User testUser3 = new User(testUsername3, encodedPassword3, "테스트 사용자3", "Other", "testuser3@example.com");
-        testUser.setProfilePicture("https://th.bing.com/th/id/OIP.bjOy9RV428Nce7XTN-yvJQHaFj?rs=1&pid=ImgDetMain");
+        testUser3.setProfilePicture("https://th.bing.com/th/id/OIP.bjOy9RV428Nce7XTN-yvJQHaFj?rs=1&pid=ImgDetMain");
 
         User testUser4 = new User(testUsername4, encodedPassword4, "테스트 사용자4", "Other", "testuser4@example.com");
-        testUser.setProfilePicture("https://i1.sndcdn.com/avatars-zc55qNuTJMhCYIS0-cUC76g-t500x500.jpg");
+        testUser4.setProfilePicture("https://i1.sndcdn.com/avatars-zc55qNuTJMhCYIS0-cUC76g-t500x500.jpg");
 
         // 사용자 저장
         userRepository.save(testUser);

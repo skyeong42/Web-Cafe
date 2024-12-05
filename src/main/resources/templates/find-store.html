@@ -353,9 +353,34 @@
                 map.setLevel(3); // 확대 수준 조정
             });
 
+            const button2 = cafeItem.querySelector('.favorite-button');
+
+            fetch(`/favorites/isFavorite?cafeId=${cafe.cafeId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch data from the server.");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Server Response Data:", data);
+                    if(data==true) {
+                        button2.textContent = "즐겨찾기 삭제";
+                        button2.classList.remove('btn-outline-primary');
+                        button2.classList.add('btn-outline-danger');
+                        button2.dataset.action = "remove"; // 상태 변경
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching users:", error);
+                    alert("서버 요청에 실패했습니다.");
+                });
+
+
             // 즐겨찾기 추가 버튼 클릭 이벤트 리스너
             cafeItem.querySelector('.favorite-button').addEventListener('click', (event) => {
-                const button = event.target;
+
+                const button = cafeItem.querySelector('.favorite-button');
                 const cafeId = button.dataset.cafeId;
                 const action = button.dataset.action; // 현재 동작: add 또는 remove
 
