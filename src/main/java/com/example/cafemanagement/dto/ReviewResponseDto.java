@@ -11,6 +11,12 @@ public class ReviewResponseDto {
     private Long cafeId;
     private String userName;
 
+    public int getLikeCount() {
+        return likeCount;
+    }
+
+    private int likeCount;
+
     public static ReviewResponseDto of(Review review, Long cafeId) {
         return new ReviewResponseDto(
                 review.getId(),
@@ -19,12 +25,13 @@ public class ReviewResponseDto {
                 review.getRating(),
                 review.getUserId(),
                 cafeId,
-                review.getUser().getNickname()
+                review.getUser().getNickname(),
+                review.getLikeCount()
         );
 
     }
 
-    public ReviewResponseDto(Long reviewId, String title, String content, int rating, Long userId, Long cafeId, String userName) {
+    public ReviewResponseDto(Long reviewId, String title, String content, int rating, Long userId, Long cafeId, String userName, int likeCount) {
         this.reviewId = reviewId;
         this.title = title;
         this.content = content;
@@ -32,6 +39,7 @@ public class ReviewResponseDto {
         this.userId = userId;
         this.cafeId = cafeId;
         this.userName = userName;
+        this.likeCount = likeCount;
     }
 
     public Long getReviewId() {

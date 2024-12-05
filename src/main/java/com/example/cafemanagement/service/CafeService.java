@@ -93,7 +93,7 @@ public class CafeService {
                 .orElseThrow(() -> new IllegalArgumentException("카페를 찾을 수 없습니다."));
 
         List<MenuDto> menus = menuRepository.findByCafeId(cafeId).stream()
-                .map(menu -> new MenuDto(menu.getName(), menu.getPrice()))
+                .map(menu -> new MenuDto(menu.getId(), menu.getName(), menu.getPrice()))
                 .collect(Collectors.toList());
 
         return new CafeDto(cafe.getCafeId(), cafe.getCafeName(), LocationDto.of(cafe.getLocation()), cafe.getRating(), cafe.getDescription(), cafe.getCategory().getCategoryName(),
@@ -263,7 +263,7 @@ public class CafeService {
 
         // MenuDto 리스트 생성
         List<MenuDto> menuDtos = cafe.getMenus().stream()
-                .map(menu -> new MenuDto(menu.getName(), menu.getPrice()))
+                .map(menu -> new MenuDto(menu.getId(), menu.getName(), menu.getPrice()))
                 .collect(Collectors.toList());
 
         // ReviewDto 리스트 생성

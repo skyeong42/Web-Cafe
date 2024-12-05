@@ -1,18 +1,25 @@
 package com.example.cafemanagement.dto;
 
+import com.example.cafemanagement.domain.Menu;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class BookingSaveRequestDto {
     private String title; // 예약 제목
-    private LocalDateTime bookingTime; // 예약 시간
+    private LocalDate bookingTime; // 예약 시간
+    private List<MenuRequestDto> menuList;
     private String status; // 예약 상태
     private Long userId; // 사용자 ID
     private Long cafeId; // 카페 ID
 
     // Constructor
-    public BookingSaveRequestDto(String title, LocalDateTime bookingTime, String status, Long userId, Long cafeId) {
+    public BookingSaveRequestDto(String title, LocalDate bookingTime, List<MenuRequestDto> menuList, String status, Long userId, Long cafeId) {
         this.title = title;
         this.bookingTime = bookingTime;
+        this.menuList = menuList;
         this.status = status;
         this.userId = userId;
         this.cafeId = cafeId;
@@ -27,13 +34,10 @@ public class BookingSaveRequestDto {
         this.title = title;
     }
 
-    public LocalDateTime getBookingTime() {
+    public LocalDate getBookingTime() {
         return bookingTime;
     }
 
-    public void setBookingTime(LocalDateTime bookingTime) {
-        this.bookingTime = bookingTime;
-    }
 
     public String getStatus() {
         return status;
@@ -57,5 +61,9 @@ public class BookingSaveRequestDto {
 
     public void setCafeId(Long cafeId) {
         this.cafeId = cafeId;
+    }
+
+    public List<MenuRequestDto> getMenuList() {
+        return menuList;
     }
 }

@@ -1,7 +1,11 @@
 package com.example.cafemanagement.domain;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Booking {
@@ -14,10 +18,18 @@ public class Booking {
     private String title; // 예약 제목
 
     @Column(nullable = false)
-    private LocalDateTime bookingTime; // 예약 시간
+    private LocalDate bookingTime; // 예약 시간
 
     @Column(nullable = false)
     private String status; // 예약 상태
+
+    public List<BookingMenu> getBookingMenus() {
+        return bookingMenus;
+    }
+
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookingMenu> bookingMenus = new ArrayList<>();
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -30,12 +42,13 @@ public class Booking {
     // 기본 생성자
     protected Booking() {}
 
-    public Booking(String title, LocalDateTime bookingTime, String status, User user, Cafe cafe) {
+    public Booking(String title, LocalDate bookingTime, String status, User user, Cafe cafe, List<BookingMenu> bookingMenus) {
         this.title = title;
         this.bookingTime = bookingTime;
         this.status = status;
         this.user = user;
         this.cafe = cafe;
+        this.bookingMenus = bookingMenus;
     }
 
     // Getters
@@ -47,7 +60,7 @@ public class Booking {
         return title;
     }
 
-    public LocalDateTime getBookingTime() {
+    public LocalDate getBookingTime() {
         return bookingTime;
     }
 
@@ -68,9 +81,6 @@ public class Booking {
         this.title = title;
     }
 
-    public void setBookingTime(LocalDateTime bookingTime) {
-        this.bookingTime = bookingTime;
-    }
 
     public void setStatus(String status) {
         this.status = status;

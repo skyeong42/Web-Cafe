@@ -2,12 +2,16 @@ package com.example.cafemanagement.controller;
 
 import com.example.cafemanagement.dto.BookingDto;
 import com.example.cafemanagement.dto.BookingSaveRequestDto;
+import com.example.cafemanagement.repository.UserRepository;
 import com.example.cafemanagement.service.BookingService;
+import com.example.cafemanagement.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,9 +22,11 @@ import java.util.List;
 public class BookingController {
 
     private final BookingService bookingService;
+    private final UserRepository userRepository;
 
-    public BookingController(BookingService bookingService) {
+    public BookingController(BookingService bookingService, UserRepository userRepository) {
         this.bookingService = bookingService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping
@@ -29,7 +35,15 @@ public class BookingController {
             @ApiResponse(responseCode = "200", description = "예약 생성 성공"),
             @ApiResponse(responseCode = "400", description = "유효하지 않은 요청 데이터")
     })
-    public ResponseEntity<String> createBooking(@RequestBody BookingSaveRequestDto dto) {
+    public ResponseEntity<String> createBooking(@RequestBody BookingSaveRequestDto dto, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+        String username = authentication.getName();
+        // 사용자 ID를 username을 통해 조회 (사용자 서비스 필요)
+        Long userId = userRepository.findByUsername(username).get().getId();
+
+        dto.setUserId(userId); // 예약 DTO에 사용자 ID 설정
         Long bookingId = bookingService.createBooking(dto);
         return ResponseEntity.ok("예약이 성공적으로 생성되었습니다. ID: " + bookingId);
     }

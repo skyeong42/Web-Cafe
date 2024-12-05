@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <title>Caffong - 메인</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Datepicker CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
+
+
     <style>
         /* http://meyerweb.com/eric/tools/css/reset/
    v2.0 | 20110126
@@ -300,6 +307,11 @@
             display: none;
         }
 
+        .menu-select,
+        .menu-quantity {
+            height: 100%;
+        }
+
         /* 반응형 디자인 */
         @media (max-width: 768px) {
             #main-container {
@@ -325,6 +337,66 @@
             }
         }
 
+        /* 예약 섹션 스타일 (추가) */
+        /* 예약 섹션 스타일링 */
+        /* 예약 섹션 스타일링 */
+        #reservation-section .card {
+            border: none;
+            border-radius: 10px;
+        }
+
+        #reservation-section .card-header {
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        #reservation-section .menu-item {
+            position: relative;
+        }
+
+        #reservation-section .menu-item .remove-menu-button {
+            /* width: 100%; 제거하여 버튼 크기를 자동으로 조절 */
+            text-align: center;
+            padding: 0.25rem 0.5rem; /* 버튼 패딩 조정 */
+        }
+
+        #add-menu-button,
+        #confirm-reservation-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #add-menu-button i,
+        #confirm-reservation-button i {
+            margin-right: 8px;
+        }
+
+        /* 추가적인 스타일링 */
+        #menu-selection .menu-item {
+            margin-bottom: 15px;
+        }
+
+        .remove-menu-button {
+            /* 버튼을 작은 크기로 유지 */
+            font-size: 0.9rem;
+        }
+
+
+        .menu-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            position: relative;
+        }
+        .remove-menu-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+
+
 
         /* 검색 결과가 없을때*/
 
@@ -342,6 +414,15 @@
     </style>
 
     <style>
+        .like-button[data-liked="true"] {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .like-button[data-liked="false"] {
+            background-color: white;
+            color: #007bff;
+        }
         /* 리뷰 리스트 스타일 */
         .review-list {
             margin-top: 20px;
@@ -429,6 +510,8 @@
         }
     </style>
 
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
 
 </head>
 <body>
@@ -514,6 +597,61 @@
                     <!-- 내용이 JavaScript로 동적으로 채워집니다 -->
                 </div>
 
+                <!-- 예약 섹션 -->
+                <div id="reservation-section" class="container my-4" style="display: none;">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">예약하기</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- 캘린더 -->
+                            <div class="mb-4">
+                                <label for="reservation-date" class="form-label">예약 날짜 및 시간</label>
+                                <input type="text" id="reservation-date" class="form-control" required>
+                            </div>
+
+                            <!-- 메뉴 선택 -->
+                            <div id="menu-selection">
+                                <div class="menu-item mb-3 p-3 border rounded bg-light">
+                                    <div class="row align-items-center">
+                                        <!-- 메뉴 선택 -->
+                                        <div class="col-md-5 mb-3 mb-md-0">
+                                            <label class="form-label">메뉴 선택</label>
+                                            <select class="form-select menu-select" required>
+                                                <option value="">메뉴를 선택하세요</option>
+                                                <!-- 동적으로 메뉴 옵션을 추가 -->
+                                            </select>
+                                        </div>
+                                        <!-- 수량 입력 -->
+                                        <div class="col-md-3 mb-3 mb-md-0">
+                                            <label class="form-label">수량</label>
+                                            <input type="number" class="form-control menu-quantity" placeholder="수량" min="1" required>
+                                        </div>
+                                        <!-- 삭제 버튼 -->
+                                        <div class="col-md-2 d-flex align-items-end">
+                                            <button type="button" class="btn btn-danger btn-sm remove-menu-button">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" id="add-menu-button" class="btn btn-outline-primary mb-4">
+                                <i class="bi bi-plus-circle"></i> 메뉴 추가
+                            </button>
+
+                            <!-- 예약 확인 버튼 -->
+                            <div class="d-grid">
+                                <button type="button" id="confirm-reservation-button" class="btn btn-success btn-lg">
+                                    <i class="bi bi-check-circle"></i> 예약 확인
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
                 <div id="review-section">
                     <button id="write-review-button" class="btn btn-primary" style="display:none;">리뷰 작성</button>
                     <div id="review-form" style="display:none; margin-top: 20px;">
@@ -576,7 +714,20 @@
 <!-- 스크립트 -->
 <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=c1be6dbc09faa31e5316451aad20da0b&libraries=services"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap Datepicker JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 <script th:inline="javascript">
+    $(document).ready(function(){
+        $('#reservation-date').datepicker({
+            format: 'yyyy-mm-dd',
+            startDate: '0d',
+            autoclose: true,
+            todayHighlight: true
+        });
+    });
     /*<![CDATA[*/
     var cafes = /*[[${cafes}]]*/ '[]'; // 서버에서 전달된 카페 데이터 (JSON 형식으로 전달됨)
     var cafeDetails = document.getElementById('cafe-details');
@@ -640,20 +791,6 @@
             alert("먼저 카페를 선택해주세요.");
         }
     });
-
-    // 다른 탭 클릭 시 리뷰 작성 버튼 숨기기
-    ['info-link', 'menu-link', 'photos-link', 'reservations-link'].forEach(function (id) {
-        document.getElementById(id).addEventListener('click', function (event) {
-            event.preventDefault();
-
-            // 리뷰 작성 버튼 숨기기
-            document.getElementById('write-review-button').style.display = 'none';
-
-            // 리뷰 작성 폼도 숨기기
-            document.getElementById('review-form').style.display = 'none';
-        });
-    });
-
 
     document.getElementById('write-review-button').addEventListener('click', function () {
         const reviewForm = document.getElementById('review-form');
@@ -719,6 +856,15 @@
     });
     // DOMContentLoaded 이벤트를 사용하여 DOM이 완전히 로드된 후에 실행
     document.addEventListener('DOMContentLoaded', function () {
+        ['info-link', 'menu-link', 'review-link', 'photos-link', 'reservations-link'].forEach(function (id) {
+            document.getElementById(id).addEventListener('click', function (event) {
+                event.preventDefault();
+                // 모든 관련 섹션 숨기기
+                hideReservationSection();
+                document.getElementById('cafe-details').style.display = 'none';
+            });
+        });
+
         var cafeItems = document.querySelectorAll('.cafe-item');
 
         // 카페 리스트 아이템 클릭 이벤트 등록
@@ -730,6 +876,7 @@
                 var address = cafe.location.address;
                 var description = cafe.description;
                 var menus = cafe.menus;
+                console.log("menus is" + menus);
                 var phone = '전화번호 없음'; // 내부 DB는 기본값 없음
                 var imageUrl = cafe.imageUrl;
 
@@ -753,6 +900,95 @@
                 map.setCenter(moveLatLon);
                 map.setLevel(5); // 필요에 따라 레벨 조정
             });
+        });
+
+        document.getElementById('reservations-link').addEventListener('click', function(event) {
+            event.preventDefault();
+            if (selectedCafe) {
+                showReservationSection();
+            } else {
+                alert("먼저 카페를 선택해주세요.");
+            }
+        });
+
+        document.getElementById('confirm-reservation-button').addEventListener('click', function() {
+            // 예약 날짜 및 시간
+            const bookingDateTime = document.getElementById('reservation-date').value;
+            if (!bookingDateTime) {
+                alert('예약 날짜 및 시간을 선택해주세요.');
+                return;
+            }
+
+            // 메뉴 및 수량 수집
+            const menuSelects = document.querySelectorAll('.menu-select');
+            const menuQuantities = document.querySelectorAll('.menu-quantity');
+
+            let menuList = [];
+            for (let i = 0; i < menuSelects.length; i++) {
+                const menuId = menuSelects[i].value;
+                const quantity = parseInt(menuQuantities[i].value, 10);
+
+                console.log(menuId);
+                console.log(quantity);
+
+                if (!menuId) {
+                    alert(`메뉴를 선택해주세요 (항목 ${i + 1})`);
+                    return;
+                }
+                if (!quantity || quantity < 1) {
+                    alert(`수량을 올바르게 입력해주세요 (항목 ${i + 1})`);
+                    return;
+                }
+
+                menuList.push({
+                    menuId: menuId,
+                    quantity: quantity
+                });
+            }
+
+            if (menuList.length === 0) {
+                alert('최소 하나 이상의 메뉴를 선택해주세요.');
+                return;
+            }
+
+            // 예약 데이터 구성
+            const reservationData = {
+                title: `예약 - ${selectedCafe.tagName}`,
+                bookingTime: bookingDateTime,
+                menuList: menuList,
+                status: 'CONFIRMED', // 기본 상태 설정
+                cafeId: selectedCafe.cafeId
+            };
+
+            console.log("testtesttest")
+            // 예약 API 호출
+            fetch('/bookings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(reservationData),
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.text();
+                    } else if (response.status === 400) {
+                        throw new Error('유효하지 않은 예약 데이터입니다.');
+                    } else if (response.status === 401) {
+                        throw new Error('로그인이 필요합니다.');
+                    } else {
+                        throw new Error('예약 생성에 실패했습니다.');
+                    }
+                })
+                .then(message => {
+                    alert(message);
+                    // 예약 섹션 초기화
+                    document.getElementById('reservation-section').style.display = 'none';
+                    // 필요한 경우 다른 작업 수행 (예: 페이지 리로드, 예약 내역 표시 등)
+                })
+                .catch(error => {
+                    alert(error.message);
+                });
         });
 
         document.getElementById('info-link').addEventListener('click', function (event) {
@@ -882,40 +1118,58 @@
 
         console.log("Received reviews:", reviews); // 디버깅 로그
 
-        var reviewList = `
-        <div class="review-list">
+        let reviewList = `
+    <div class="review-list">
     `;
+
         reviews.forEach(function (review) {
             // 별점 표시용 HTML 생성 (예: ★★★☆☆)
             const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+            const isLiked = review.isLikedByCurrentUser ? 'true' : 'false';
+            const likeButtonClass = review.isLikedByCurrentUser ? 'btn-primary' : 'btn-outline-primary';
+            const likesCount = review.likeCount != null ? review.likeCount : 0; // 기본값 0 설정
 
             // Bootstrap Card를 사용하여 리뷰 항목 구성
             reviewList += `
-                    <div class="card mb-3 review-item" data-review-id="${review.reviewId}">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="card-title">${review.title}</h5>
-                                <small class="text-muted">${stars}</small>
-                            </div>
-                            <h6 class="card-subtitle mb-2 text-muted">${review.userName}</h6>
-                            <p class="card-text">${review.content}</p>
-                            <div class="review-actions text-end">
-                                <button class="btn btn-sm btn-secondary edit-review-button me-2">수정</button>
-                                <button class="btn btn-sm btn-danger delete-review-button">삭제</button>
-                            </div>
-                        </div>
+        <div class="card mb-3 review-item" data-review-id="${review.reviewId}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">${review.title}</h5>
+                    <small class="text-muted">${stars}</small>
+                </div>
+                <h6 class="card-subtitle mb-2 text-muted">${review.userName}</h6>
+                <p class="card-text">${review.content}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <button
+                            class="like-button btn ${likeButtonClass}"
+                            data-liked="${isLiked}"
+                            data-likes="${likesCount}">
+                            <i class="bi bi-hand-thumbs-up"></i>
+                            <span>${likesCount}</span>
+                        </button>
                     </div>
-                `;
+                    <div>
+                        <button class="btn btn-sm btn-secondary edit-review-button me-2">수정</button>
+                        <button class="btn btn-sm btn-danger delete-review-button">삭제</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
         });
+
         reviewList += `</div>`;
 
         // 리뷰 목록을 업데이트
         cafeDetails.innerHTML = reviewList;
         cafeDetails.style.display = 'block';
 
-        // 이벤트 리스너 등록
-        registerReviewActionButtons();
+        // 좋아요 버튼 이벤트 리스너 등록
+        registerLikeButtons();
     }
+
+
 
 
     function showMenus(menus) {
@@ -1257,8 +1511,178 @@
             });
     }
 
+    /* 예약 섹션 관련 스크립트 */
+    /* 예약 섹션 관련 스크립트 */
+
+    // 예약 링크 클릭 시 예약 섹션 표시
+    // document.getElementById('reservations-link').addEventListener('click', function(event) {
+    //     console.log("testtest")
+    //     event.preventDefault();
+    //     if (selectedCafe) {
+    //         showReservationSection();
+    //     } else {
+    //         alert("먼저 카페를 선택해주세요.");
+    //     }
+    // });
+
+    // 예약 섹션 표시 함수
+    function showReservationSection() {
+        // 다른 섹션 숨기기
+        document.getElementById('cafe-details').style.display = 'none';
+        document.getElementById('reservation-section').style.display = 'block';
+
+        // 메뉴 선택 초기화
+        initializeMenuSelection();
+    }
+
+    // 예약 섹션 숨기기 (다른 탭 클릭 시)
+    function hideReservationSection() {
+        document.getElementById('reservation-section').style.display = 'none';
+    }
+
+    // 다른 탭 클릭 시 예약 섹션 숨기기
+    // 다른 탭 클릭 시 예약 섹션 숨기기
+    // 다른 탭 클릭 시 예약 섹션 숨기기
+
+
+    // 메뉴 선택 초기화 함수
+    function initializeMenuSelection() {
+        const menuSelectionDiv = document.getElementById('menu-selection');
+        menuSelectionDiv.innerHTML = ''; // 기존 메뉴 항목 초기화
+
+        // 초기 메뉴 항목 추가
+        addMenuItem();
+
+        // 추가 버튼 이벤트 등록
+        document.getElementById('add-menu-button').addEventListener('click', addMenuItem);
+    }
+
+    // 메뉴 항목 추가 함수
+    function addMenuItem() {
+        const menuSelectionDiv = document.getElementById('menu-selection');
+
+        const menuItemDiv = document.createElement('div');
+        menuItemDiv.className = 'menu-item mb-3';
+
+        // 메뉴 선택 셀렉트 박스
+        const menuSelect = document.createElement('select');
+        menuSelect.className = 'form-select menu-select';
+        menuSelect.required = true;
+
+        // 기본 옵션
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = '메뉴를 선택하세요';
+        menuSelect.appendChild(defaultOption);
+
+        // 카페의 메뉴를 기반으로 옵션 추가
+        if (selectedCafe.menus && selectedCafe.menus.length > 0) {
+            selectedCafe.menus.forEach(function(menu) {
+                const option = document.createElement('option');
+                option.value = menu.id; // 메뉴 ID
+                option.textContent = `${menu.name} - ${menu.price.toLocaleString()}₩`;
+                menuSelect.appendChild(option);
+            });
+        } else {
+            const noMenuOption = document.createElement('option');
+            noMenuOption.value = '';
+            noMenuOption.textContent = '메뉴가 없습니다';
+            menuSelect.appendChild(noMenuOption);
+        }
+
+        // 수량 입력
+        const quantityInput = document.createElement('input');
+        quantityInput.type = 'number';
+        quantityInput.className = 'form-control mt-2 menu-quantity';
+        quantityInput.placeholder = '수량';
+        quantityInput.min = '1';
+        quantityInput.required = true;
+
+        // 삭제 버튼
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'btn btn-secondary mt-2 remove-menu-button';
+        removeButton.textContent = '삭제';
+        removeButton.addEventListener('click', function() {
+            menuSelectionDiv.removeChild(menuItemDiv);
+        });
+
+        // 메뉴 항목에 요소 추가
+        menuItemDiv.appendChild(menuSelect);
+        menuItemDiv.appendChild(quantityInput);
+        menuItemDiv.appendChild(removeButton);
+
+        // 메뉴 선택 섹션에 메뉴 항목 추가
+        menuSelectionDiv.appendChild(menuItemDiv);
+    }
+
+    function registerLikeButtons() {
+        document.querySelectorAll('.like-button').forEach(button => {
+            button.addEventListener('click', function () {
+                const reviewId = this.closest('.review-item').getAttribute('data-review-id');
+                const liked = this.getAttribute('data-liked') === 'true';
+                const currentLikes = parseInt(this.getAttribute('data-likes'), 10) || 0;
+
+                // 서버 요청 URL
+                const url = `/api/reviews/${reviewId}/like`;
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ liked: !liked }), // 현재 상태의 반대값 전송
+                })
+                    .then(response => {
+                        if (response.ok) return response.json();
+                        else throw new Error('좋아요 처리 실패');
+                    })
+                    .then(data => {
+                        // 서버에서 받은 likesCount와 isLiked 상태 사용
+                        const newLikes = data.likesCount != null ? data.likesCount : (liked ? currentLikes - 1 : currentLikes + 1);
+                        const isLiked = data.isLiked != null ? data.isLiked : !liked;
+
+                        // 버튼 상태 업데이트
+                        this.setAttribute('data-liked', isLiked);
+                        this.setAttribute('data-likes', newLikes);
+                        this.querySelector('span').innerText = newLikes;
+
+                        // 버튼 색깔 상태 변경
+                        if (isLiked) {
+                            this.classList.add('btn-primary');
+                            this.classList.remove('btn-outline-primary');
+                        } else {
+                            this.classList.add('btn-outline-primary');
+                            this.classList.remove('btn-primary');
+                        }
+
+                        // `selectedCafe.reviews` 데이터도 업데이트
+                        if (selectedCafe && selectedCafe.reviews) {
+                            const review = selectedCafe.reviews.find(r => r.reviewId == reviewId);
+                            if (review) {
+                                review.isLikedByCurrentUser = isLiked;
+                                review.likesCount = newLikes;
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        alert(error.message);
+                    });
+            });
+        });
+    }
+
+
+
+
+
+    // 예약 확인 버튼 클릭 이벤트
+
 
     /*]]>*/
 </script>
+<!-- FullCalendar JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
+
 </body>
 </html>
