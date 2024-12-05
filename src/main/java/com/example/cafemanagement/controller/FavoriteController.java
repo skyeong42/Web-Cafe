@@ -38,4 +38,10 @@ public class FavoriteController {
         return ResponseEntity.ok(favorites);
     }
 
+    @GetMapping("/isFavorite")
+    @ResponseBody
+    public boolean isFavorite(@RequestParam("cafeId") Long cafeId, Authentication authentication) {
+        return this.favoriteService.isFavorite(cafeId, authentication.getName());
+    }
+
 }

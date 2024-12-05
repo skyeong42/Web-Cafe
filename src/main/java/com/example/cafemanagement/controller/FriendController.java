@@ -37,9 +37,9 @@ public class FriendController {
 
     @GetMapping("/friend/add")
     @ResponseBody
-    public Integer addFriend(@RequestParam("username") String username, Authentication authentication) {
+    public ResponseEntity<Void> addFriend(@RequestParam("username") String username, Authentication authentication) {
         this.friendService.addFriend(username, authentication.getName());
-        return 0;
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/friend/request")
@@ -50,16 +50,16 @@ public class FriendController {
 
     @GetMapping("/friendship/add")
     @ResponseBody
-    public Integer addFriendship(@RequestParam("username") String username, Authentication authentication) {
+    public ResponseEntity<Void> addFriendship(@RequestParam("username") String username, Authentication authentication) {
         this.friendService.addFriendship(username, authentication.getName());
-        return 0;
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/friend/remove")
     @ResponseBody
-    public Integer removeFriend(@RequestParam("username") String username, Authentication authentication) {
+    public ResponseEntity<Void> removeFriend(@RequestParam("username") String username, Authentication authentication) {
         this.friendService.removeFriend(username, authentication.getName());
-        return 0;
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/friendship/list")
