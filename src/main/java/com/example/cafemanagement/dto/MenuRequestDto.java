@@ -4,12 +4,12 @@ public class MenuRequestDto {
 
     private String menuName;
     private Long menuId;
-    private int menuCount;
+    private int quantity;
 
-    public MenuRequestDto(String menuName, Long menuId, int menuCount) {
+    public MenuRequestDto(String menuName, Long menuId, int quantity) {
         this.menuName = menuName;
         this.menuId = menuId;
-        this.menuCount = menuCount;
+        this.quantity = quantity;
     }
 
     public String getMenuName() {
@@ -20,7 +20,7 @@ public class MenuRequestDto {
         return menuId;
     }
 
-    public int getMenuCount() {
-        return menuCount;
+    public int getQuantity() {
+        return quantity;
     }
 }

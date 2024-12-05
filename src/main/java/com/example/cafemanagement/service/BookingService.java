@@ -48,7 +48,7 @@ public class BookingService {
             Menu menu = menuRepository.findById(menuDto.getMenuId())
                     .orElseThrow(() -> new IllegalArgumentException("메뉴를 찾을 수 없습니다."));
 
-            BookingMenu bookingMenu = new BookingMenu(booking, menu, menuDto.getMenuCount());
+            BookingMenu bookingMenu = new BookingMenu(booking, menu, menuDto.getQuantity());
             booking.getBookingMenus().add(bookingMenu); // Booking에 BookingMenu 추가
         }
 
@@ -89,7 +89,8 @@ public class BookingService {
                 booking.getBookingTime(),
                 booking.getStatus(),
                 booking.getUser().getId(),
-                booking.getCafe().getCafeId()
+                booking.getCafe().getCafeId(),
+                booking.getBookingMenus()
         );
     }
 }

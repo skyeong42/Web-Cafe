@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.example.cafemanagement.dto.*;
 import org.apache.coyote.BadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,11 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.cafemanagement.config.InMemoryTokenBlacklist;
 import com.example.cafemanagement.domain.User;
-import com.example.cafemanagement.dto.BookingDto;
-import com.example.cafemanagement.dto.ReviewDto;
-import com.example.cafemanagement.dto.UserProfileDetailsDto;
-import com.example.cafemanagement.dto.UserSaveRequestDto;
-import com.example.cafemanagement.dto.UserUpdateRequestDto;
 import com.example.cafemanagement.repository.UserRepository;
 import com.example.cafemanagement.util.JwtUtil;
 
@@ -120,7 +116,8 @@ public class UserService {
                         booking.getBookingTime(),
                         booking.getStatus(),
                         user.getId(),
-                        booking.getCafe().getId()))
+                        booking.getCafe().getId(),
+                        booking.getBookingMenus()))
                 .collect(Collectors.toList());
 
         return new UserProfileDetailsDto(
