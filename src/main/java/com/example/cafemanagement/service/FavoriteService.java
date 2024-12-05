@@ -1,6 +1,7 @@
 package com.example.cafemanagement.service;
 
 import com.example.cafemanagement.domain.Cafe;
+import com.example.cafemanagement.domain.Favorite;
 import com.example.cafemanagement.domain.User;
 import com.example.cafemanagement.dto.CafeDto;
 import com.example.cafemanagement.dto.LocationDto;
@@ -79,6 +80,14 @@ public class FavoriteService {
                         null                               // reviewDtos (필요 시 추가)
                 ))
                 .collect(Collectors.toList());
+    }
+
+    public boolean isFavorite(Long cafeId, String myname) {
+        Favorite favorite = this.favoriteRepository.findByCafe_CafeIdAndUser_Username(cafeId, myname);
+        if(favorite==null) {
+            return false;
+        }
+        return true;
     }
 
 }
