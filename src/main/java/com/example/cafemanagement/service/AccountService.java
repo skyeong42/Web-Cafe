@@ -51,13 +51,35 @@ public class AccountService {
 
     // 비밀번호 재설정
     public void resetPassword(String token, String newPassword) {
+        // 비밀번호 유효성 검사
+        validatePassword(newPassword);
+
+        // 토큰에서 이메일 가져오기
         String email = passwordResetTokenService.validateTokenAndGetEmail(token);
+
+        // 사용자 찾기
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("해당 이메일로 등록된 계정을 찾을 수 없습니다."));
 
+        // 기존 비밀번호와 동일한지 확인
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new IllegalArgumentException("새로운 비밀번호는 기존 비밀번호와 동일할 수 없습니다.");
+        }
+
+        // 새로운 비밀번호 설정
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
+
+    // 비밀번호 유효성 검사 메서드
+    private void validatePassword(String password) {
+        // 비밀번호 조건: 12자 이상 20자 이하, 영문자, 숫자, 특수문자 포함
+        String passwordPattern = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{12,20}$";
+        if (!password.matches(passwordPattern)) {
+            throw new IllegalArgumentException("비밀번호는 12자 이상 20자 이하이며, 영문자, 숫자, 특수문자를 포함해야 합니다.");
+        }
+    }
+
 
     // 토큰 유효성 검사
     public String validatePasswordResetToken(String token) {
