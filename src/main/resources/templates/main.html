@@ -769,28 +769,6 @@
             });
     }
 
-    document.getElementById('review-link').addEventListener('click', function (event) {
-        event.preventDefault();
-
-        if (selectedCafe) {
-            fetch('/cafes/' + selectedCafe.cafeId + '/reviews')
-                .then(response => response.json())
-                .then(data => {
-                    showCafeReviews(data);
-                })
-                .catch(error => {
-                    console.error('Error fetching reviews:', error);
-                    alert('리뷰를 가져오는 중 오류가 발생했습니다.');
-                });
-            // 리뷰 작성 버튼 표시
-            document.getElementById('write-review-button').style.display = 'block';
-
-            // 리뷰 작성 폼은 초기에는 숨김
-            document.getElementById('review-form').style.display = 'none';
-        } else {
-            alert("먼저 카페를 선택해주세요.");
-        }
-    });
 
     document.getElementById('write-review-button').addEventListener('click', function () {
         const reviewForm = document.getElementById('review-form');
@@ -861,8 +839,34 @@
                 event.preventDefault();
                 // 모든 관련 섹션 숨기기
                 hideReservationSection();
+                document.getElementById('review-form').style.display = 'none';
                 document.getElementById('cafe-details').style.display = 'none';
+                document.getElementById('write-review-button').style.display = 'none'; // 리뷰 작성 버튼 숨기기
             });
+        });
+
+        // 2. Ensure the "write-review-button" is shown when the review section is active
+        document.getElementById('review-link').addEventListener('click', function (event) {
+            event.preventDefault();
+
+            if (selectedCafe) {
+                fetch('/cafes/' + selectedCafe.cafeId + '/reviews')
+                    .then(response => response.json())
+                    .then(data => {
+                        showCafeReviews(data);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching reviews:', error);
+                        alert('리뷰를 가져오는 중 오류가 발생했습니다.');
+                    });
+                // 리뷰 작성 버튼 표시
+                document.getElementById('write-review-button').style.display = 'block'; // Ensure it's shown
+
+                // 리뷰 작성 폼은 초기에는 숨김
+                document.getElementById('review-form').style.display = 'none';
+            } else {
+                alert("먼저 카페를 선택해주세요.");
+            }
         });
 
         var cafeItems = document.querySelectorAll('.cafe-item');
@@ -1167,6 +1171,9 @@
 
         // 좋아요 버튼 이벤트 리스너 등록
         registerLikeButtons();
+
+        // 리뷰 수정 및 삭제 버튼 이벤트 리스너 등록 (추가)
+        registerReviewActionButtons();
     }
 
 
@@ -1398,14 +1405,14 @@
     }
 
 
-    function showEditReviewForm(reviewId, currentContent, currentRating, title) {
+    function showEditReviewForm(reviewId, currentTitle, currentContent, currentRating) {
         // 기존 리뷰 항목을 수정 폼으로 교체
         const reviewItem = document.querySelector(`.review-item[data-review-id="${reviewId}"]`);
         reviewItem.innerHTML = `
         <form class="edit-review-form">
             <div class="mb-3">
                 <label for="edit-review-title-${reviewId}" class="form-label">제목</label>
-                <textarea id="edit-review-title-${reviewId}" class="form-control" rows="2" required>${title}</textarea>
+                <input type="text" id="edit-review-title-${reviewId}" class="form-control" required value="${currentTitle}">
             </div>
             <div class="mb-3">
                 <label for="edit-review-content-${reviewId}" class="form-label">내용</label>
@@ -1423,28 +1430,30 @@
         // 수정 취소 버튼 이벤트
         reviewItem.querySelector('.cancel-edit-button').addEventListener('click', function () {
             // 리뷰를 다시 표시
-            fetchReviewDetails(reviewId);
+            fetchReviewDetails();
         });
 
         // 수정 폼 제출 이벤트
         reviewItem.querySelector('.edit-review-form').addEventListener('submit', function (event) {
             event.preventDefault();
+            const updatedTitle = document.getElementById(`edit-review-title-${reviewId}`).value.trim();
             const updatedContent = document.getElementById(`edit-review-content-${reviewId}`).value.trim();
             const updatedRating = parseInt(document.getElementById(`edit-review-rating-${reviewId}`).value, 10);
-            const updatedTitle = document.getElementById(`edit-review-title-${reviewId}`).value.trim();
 
-            if (!updatedContent || !updatedRating || !updatedTitle) {
-                alert('title과 내용과 평점을 모두 입력해주세요.');
+            if (!updatedTitle || !updatedContent || !updatedRating) {
+                alert('제목, 내용, 평점을 모두 입력해주세요.');
                 return;
             }
+
             // 수정 요청 전송
             updateReview(reviewId, {
+                title: updatedTitle,
                 content: updatedContent,
                 rating: updatedRating,
-                title: updatedTitle,
             });
         });
     }
+
 
     function updateReview(reviewId, reviewData) {
         fetch(`/api/reviews/${reviewId}`, {
