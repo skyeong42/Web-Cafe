@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface FriendRepository extends JpaRepository<Friend, Integer> {
 
-    @Query("SELECT f FROM Friend f WHERE f.fromUsername = :fromUsername AND f.toUsername = :toUsername")
+    @Query("SELECT f FROM Friend f WHERE LOWER(f.fromUsername) = LOWER(:fromUsername) AND LOWER(f.toUsername) = LOWER(:toUsername)")
     Friend findByName(@Param("fromUsername") String fromUsername, @Param("toUsername") String toUsername);
 
     List<Friend> findByToUsername(String myname);

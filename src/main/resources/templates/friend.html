@@ -235,6 +235,27 @@ License: none (public domain)
   <div class="friendship-list"></div>
 </div>
 
+<div id="chat-modal" class="modal" tabindex="-1" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">대화창</h5>
+        <button type="button" class="btn-close" aria-label="Close" onclick="closeChatModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div id="chat-messages" style="height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px;">
+          <!-- 대화 메시지가 여기에 추가됩니다 -->
+        </div>
+        <input type="text" id="chat-input" class="form-control" placeholder="메시지를 입력하세요...">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="sendMessage()">전송</button>
+        <button type="button" class="btn btn-secondary" onclick="closeChatModal()">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 
 
@@ -287,6 +308,125 @@ License: none (public domain)
           });
   }
 
+  let currentChatUser = null; // 현재 대화 중인 사용자
+  let withUser = null; // 대화 창을 연 사용자
+
+  // 대화 창 열기
+  function openChatModal(user) {
+      currentChatUser = user; // 현재 대화 중인 사용자 설정
+      console.log("Chatting with:", currentChatUser);
+
+      document.getElementById('chat-modal').style.display = 'block'; // 대화창 열기
+
+      // 이전 대화 내역 불러오기
+      fetch(`/message/conversation?with=${currentChatUser}`)
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error(`Failed to fetch messages: ${response.status}`);
+              }
+              return response.json();
+          })
+          .then(messages => {
+              console.log("Fetched messages:", messages);
+              renderMessages(messages); // 메시지를 화면에 렌더링
+          })
+          .catch(error => {
+              console.error("Error fetching messages:", error);
+              alert("메시지를 불러오는 데 실패했습니다.");
+          });
+  }
+
+
+  // 대화 창 닫기
+  function closeChatModal() {
+      currentChatUser = null; // 현재 대화 중인 사용자 초기화
+      withUser = null; // 대화 창 대상 초기화
+      document.getElementById('chat-modal').style.display = 'none'; // 대화 창 숨기기
+  }
+
+  // 메시지 전송
+  function sendMessage() {
+      const chatInput = document.getElementById('chat-input');
+      const message = chatInput.value.trim();
+
+      if (message === '') {
+          alert("메시지를 입력하세요.");
+          return;
+      }
+
+      if (!currentChatUser) {
+          alert("대화 상대를 선택하세요.");
+          return;
+      }
+
+      // 메시지 전송 API 호출
+      fetch(`/message/send?recipient=${currentChatUser}&content=${encodeURIComponent(message)}`, {
+          method: 'POST'
+      })
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error('Failed to send message');
+              }
+
+              // 메시지를 서버에서 다시 가져옴
+              return fetch(`/message/conversation?with=${currentChatUser}`);
+          })
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error('Failed to fetch conversation after sending message');
+              }
+              return response.json();
+          })
+          .then(messages => {
+              renderMessages(messages); // 서버에서 받은 대화 내역 렌더링
+              chatInput.value = ''; // 입력창 초기화
+          })
+          .catch(error => {
+              console.error('Error sending message:', error);
+              alert('메시지 전송에 실패했습니다.');
+          });
+  }
+
+
+
+  // 대화 내역 렌더링
+  function renderMessages(messages) {
+      const chatMessages = document.getElementById('chat-messages');
+      chatMessages.innerHTML = ''; // 기존 메시지 초기화
+
+      // 메시지를 Set으로 관리하여 중복 방지
+      const renderedMessages = new Set();
+
+      messages.forEach(message => {
+          const messageKey = `${message.sender}-${message.recipient}-${message.content}-${message.timestamp}`;
+          if (renderedMessages.has(messageKey)) {
+              return; // 이미 렌더링된 메시지는 건너뜀
+          }
+
+          const messageElement = document.createElement('div');
+
+          if (message.sender === currentChatUser) {
+              // 상대방이 보낸 메시지
+              messageElement.textContent = `상대방: ${message.content}`;
+          } else {
+              // 내가 보낸 메시지
+              messageElement.textContent = `나: ${message.content}`;
+          }
+
+          messageElement.style.marginBottom = '5px';
+          chatMessages.appendChild(messageElement);
+
+          renderedMessages.add(messageKey); // 렌더링된 메시지를 기록
+      });
+
+      chatMessages.scrollTop = chatMessages.scrollHeight; // 스크롤을 맨 아래로 이동
+  }
+
+
+
+
+
+
   function updateFriendshipList(friends) {
       const friendshipResults = document.querySelector('.friendship-list');
       friendshipResults.innerHTML = '';
@@ -298,18 +438,21 @@ License: none (public domain)
       friendshipResults.innerHTML = '<div class="friend-request-list">친구 목록</div>';
 
       friends.forEach(user => {
-          const friendItem = document.createElement('div');
-          friendItem.className = 'friend-item';
-              friendItem.innerHTML = `
-                  <div style="display: flex; align-items: center;">
-                      <img src="${user.profilePicture}" alt="${user.username}" style="width: 100px; height: 100px; border-radius: 8px; margin-right: 15px;">
-                      <div>
-                          <strong style="font-size: 200%; margin-bottom: 15px;">${user.username}</strong><br>
-                          <span>${user.nickname}</span>
-                      </div>
-                  </div>
-              `;
-          friendshipResults.appendChild(friendItem);
+        const friendItem = document.createElement('div');
+        friendItem.className = 'friend-item';
+        friendItem.innerHTML = `
+          <div style="display: flex; align-items: center;">
+            <img src="${user.profilePicture}" alt="${user.username}" style="width: 100px; height: 100px; border-radius: 8px; margin-right: 15px;">
+            <div>
+              <strong style="font-size: 200%; margin-bottom: 15px;">${user.username}</strong><br>
+              <span>${user.nickname}</span>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-left:auto">
+            <button class="btn btn-dark" onclick="openChatModal('${user.username}')" style="margin-left:auto">대화</button>
+          </div>
+        `;
+        friendshipResults.appendChild(friendItem);
       });
 
   }
