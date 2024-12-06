@@ -10,7 +10,7 @@ public class BookingDto {
     private String title;
     private LocalDate bookingTime;
     private String status;
-    private Long userId; // 사용자 IDA
+    private Long userId; // 사용자 ID
     private Long cafeId; // 카페 ID
 
     public List<BookingMenu> getMenuDtoList() {
