@@ -12,5 +12,3 @@
 
 ### 🗂형상 관리
 - GitHub
-## 🖥️발표영상 
-[Caffong](https://youtu.be/3VkiDdYjIyg?si=jAgSnL44w0nqCdQb)
